@@ -1,0 +1,470 @@
+@import "tailwindcss";
+@import "./theme-colors";
+
+/*-- custom fonts, colors --*/
+@theme {
+  /* fonts */
+  --font-onest: Onest, sans-serif;
+  --font-chakrapetch: Chakra Petch, sans-serif;
+
+  /* colors */
+  --color-body: #090909;
+  --color-primary: #12ff80;
+  --color-primary-3: color-mix(in srgb, var(--color-primary) 3%, transparent);
+  --color-primary-6: color-mix(in srgb, var(--color-primary) 6%, transparent);
+  --color-primary-8: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  --color-primary-10: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  --color-primary-15: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  --color-primary-20: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  --color-primary-40: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  --color-primary-50: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  --color-primary-60: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  --color-primary-70: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  --color-primary-80: color-mix(in srgb, var(--color-primary) 80%, transparent);
+
+  --color-secondary: #ffffff;
+  --color-secondary-2: color-mix(in srgb, var(--color-secondary) 2%, transparent);
+  --color-secondary-3: color-mix(in srgb, var(--color-secondary) 3%, transparent);
+  --color-secondary-5: color-mix(in srgb, var(--color-secondary) 5%, transparent);
+  --color-secondary-6: color-mix(in srgb, var(--color-secondary) 6%, transparent);
+  --color-secondary-8: color-mix(in srgb, var(--color-secondary) 8%, transparent);
+  --color-secondary-10: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+  --color-secondary-12: color-mix(in srgb, var(--color-secondary) 12%, transparent);
+  --color-secondary-15: color-mix(in srgb, var(--color-secondary) 15%, transparent);
+  --color-secondary-20: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+  --color-secondary-30: color-mix(in srgb, var(--color-secondary) 30%, transparent);
+  --color-secondary-50: color-mix(in srgb, var(--color-secondary) 50%, transparent);
+  --color-secondary-60: color-mix(in srgb, var(--color-secondary) 60%, transparent);
+  --color-secondary-70: color-mix(in srgb, var(--color-secondary) 70%, transparent);
+  --color-secondary-80: color-mix(in srgb, var(--color-secondary) 80%, transparent);
+  --color-secondary-90: color-mix(in srgb, var(--color-secondary) 90%, transparent);
+
+  --color-surface: #032e15;
+  --color-logo: #ffffff;
+  --color-shape: #032e15;
+  --color-shape-end: #0a1f13;
+  --color-btn-text: #032e15;
+  --color-card: #ffffff0f;
+  --color-black-50: #00000080;
+  --color-black-80: #000000cc;
+  --color-title: #111111;
+  --color-success: #30ef70;
+  --color-danger: #ff3c3f;
+  --color-white-80: #ffffffcc;
+  --color-rank1-start: var(--color-primary);
+  --color-rank1-end: #0d6034;
+  --color-rank2-start: #19c769;
+  --color-rank2-end: #0d3d23;
+  --color-rank3-start: #1c6e42;
+  --color-rank3-end: #034220;
+  --color-stroke: #1b1b1b;
+  --color-dot-middle: #212121;
+  --color-label-active: #ffffff26;
+
+  /* breakpoints */
+  --breakpoint-xs: 481px;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-2xl: 1536px;
+  --breakpoint-max-xs: 480px;
+  --breakpoint-max-sm: 575px;
+  --breakpoint-max-md: 767px;
+  --breakpoint-max-lg: 991px;
+  --breakpoint-max-xl: 1199px;
+  --breakpoint-max-2xl: 1535px;
+
+  /* animation */
+  --animate-star: starAnimate 15s ease-in-out infinite;
+  --animate-spin-slow: spin-slow 3s linear infinite;
+  --animate-spin-fast: spin-fast 0.6s linear infinite;
+  --animate-spin-slow2: spin-slow 15s linear infinite;
+  --animate-page-fade-in: pageFadeIn 0.4s ease-in;
+}
+
+@keyframes starAnimate {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  20% {
+    transform: translateY(10px) rotate(0deg);
+  }
+
+  40% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  60% {
+    transform: translateY(0px) rotate(360deg);
+  }
+
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-fast {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pageFadeIn {
+  0% {
+    transform: translateX(-14px);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/*-- base styles --*/
+@layer base {
+  html {
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: #00000000;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      background: var(--color-secondary-20);
+    }
+  }
+
+  body {
+    background-color: var(--color-body);
+    font-family: var(--font-onest);
+  }
+
+  input:focus,
+  select:focus {
+    outline: none;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  /*-- wallet connect modal style --*/
+  .open {
+    background-color: var(--color-black-50);
+    backdrop-filter: blur(4px);
+  }
+
+  /*-- recharts elements --*/
+  .recharts-wrapper,
+  .recharts-wrapper * {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* component style */
+@layer components {
+  @media screen and (min-width: 768px) {
+    .header-text {
+      gap: 20px;
+    }
+  }
+
+  @media screen and (min-width: 820px) {
+    .header-text {
+      gap: 50px;
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .header-text {
+      gap: 30px;
+    }
+  }
+
+  @media screen and (min-width: 1220px) {
+    .header-text {
+      gap: 50px;
+    }
+  }
+
+  @media screen and (min-width: 1536px) {
+    .header-text {
+      gap: 115px;
+    }
+  }
+
+  .range-slider {
+    cursor: pointer;
+    appearance: none;
+    width: 100%;
+    height: 16px;
+    border-radius: 100px;
+  }
+
+  .range-slider::-webkit-slider-runnable-track {
+    border-radius: 100px;
+  }
+
+  .range-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid #171717;
+    background-color: var(--color-secondary);
+  }
+
+  .range-slider::-moz-range-thumb {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid #171717;
+    background-color: var(--color-secondary);
+  }
+
+  .theme-light .range-slider::-webkit-slider-thumb {
+    border: 3px solid white;
+  }
+
+  .theme-light .range-slider::-moz-range-thumb {
+    border: 3px solid white;
+  }
+}
+
+/*-- custom style start --*/
+
+.sidebar-bg {
+  background: linear-gradient(
+    to bottom,
+    var(--color-secondary-10),
+    var(--color-secondary-3)
+  );
+}
+
+@media screen and (max-width: 1535px) {
+  .sidebar-menu {
+    .group.active {
+      .menu-title {
+        background: linear-gradient(
+          to right,
+          var(--color-primary-40) 0%,
+          transparent 90%
+        );
+      }
+    }
+  }
+}
+
+.aizon-scroll {
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+}
+
+.aizon-btn {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  text-align: center;
+  z-index: 0;
+  transition: 0.3s;
+}
+.aizon-btn .btn-inner {
+  display: inline-block;
+  vertical-align: middle;
+}
+.aizon-btn span {
+  position: relative;
+  z-index: 11;
+  transition:
+    opacity 0.6s,
+    transform 0.8s;
+  transition-timing-function: cubic-bezier(0.15, 0.85, 0.31, 1);
+}
+.aizon-btn span:nth-child(2) {
+  display: inline-block;
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 80%);
+  opacity: 0;
+}
+
+.aizon-btn:hover .btn-inner,
+.aizon-btn:focus .btn-inner {
+  transform: translateY(-150%);
+}
+.aizon-btn:hover span:nth-child(2),
+.aizon-btn:focus span:nth-child(2) {
+  transform: translate(-50%, 100%);
+  opacity: 1;
+}
+.aizon-btn:hover span .btn-normal-text,
+.aizon-btn:focus span .btn-normal-text {
+  opacity: 0;
+}
+
+.referrel-list:last-child {
+  border-bottom: 0;
+}
+
+@media screen and (min-width: 0px) {
+  .referrel-list {
+    padding: 25px 20px;
+  }
+}
+
+@media screen and (min-width: 576px) {
+  .referrel-list {
+    padding: 25px 20px;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .referrel-list {
+    padding: 25px 16px;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .referrel-list {
+    padding: 25px 20px;
+  }
+}
+
+.aizon-title {
+  font-size: 30px;
+}
+
+@media screen and (max-width: 1535px) {
+  .aizon-title {
+    font-size: 24px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .aizon-title {
+    font-size: 20px;
+  }
+}
+
+/*-- react tabs style start --*/
+.react-tabs__tab {
+  position: relative;
+  min-width: 120px;
+  border-radius: 18px;
+  cursor: pointer;
+  padding: 13px 15px;
+  border: 2px solid var(--color-secondary-8);
+  background-color: var(--color-secondary-3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Chakra Petch", sans-serif;
+  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  transition: 0.3s;
+}
+
+.react-tabs__tab::after {
+  position: absolute;
+  content: "";
+  z-index: 1;
+  top: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-stroke);
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.react-tabs__tab--selected::after {
+  opacity: 1;
+}
+
+.react-tabs__tab--selected {
+  border-color: var(--color-primary);
+}
+
+@media (min-width: 992px) and (max-width: 1350px) {
+  .react-tabs__tab {
+    min-width: 90px;
+    border-radius: 18px;
+    padding: 13px 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .react-tabs__tab {
+    min-width: 115px;
+    border-radius: 18px;
+    padding: 13px 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .react-tabs__tab {
+    min-width: 60px;
+    border-radius: 18px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+  }
+}
+/*-- react tabs style end --*/
+
+/*-- custom style end --*/

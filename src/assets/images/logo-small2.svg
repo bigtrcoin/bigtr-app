@@ -1,0 +1,57 @@
+ <svg
+  width="50"
+  height="50"
+  viewBox="0 0 50 50"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect
+    x="1"
+    y="1"
+    width="48"
+    height="48"
+    rx="11"
+    fill="url(#paint0_linear_1225_334)"
+    stroke="url(#paint1_linear_1225_334)"
+    stroke-width="2"
+  />
+  <path
+    d="M25 9L15.5 25H25L34.0886 9.69282C34.2715 9.3849 34.7285 9.3849 34.9114 9.69282L44 25L35.1856 39.8453C34.7614 40.5598 33.9773 41 33.1288 41H25L34.5 25L25 25L15.9114 40.3072C15.7285 40.6151 15.2715 40.6151 15.0886 40.3072L6 25L14.8144 10.1547C15.2386 9.44017 16.0227 9 16.8712 9L25 9Z"
+    fill="url(#paint2_linear_1225_334)"
+  />
+  <defs>
+    <linearGradient
+      id="paint0_linear_1225_334"
+      x1="25"
+      y1="0"
+      x2="25"
+      y2="50"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop stop-color="var(--color-logo)" stop-opacity="0.15" />
+      <stop offset="1" stop-color="var(--color-logo)" stop-opacity="0.08" />
+    </linearGradient>
+    <linearGradient
+      id="paint1_linear_1225_334"
+      x1="25"
+      y1="0"
+      x2="25"
+      y2="50"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop stop-color="var(--color-logo)" stop-opacity="0.2" />
+      <stop offset="1" stop-color="var(--color-logo)" stop-opacity="0.05" />
+    </linearGradient>
+    <linearGradient
+      id="paint2_linear_1225_334"
+      x1="25"
+      y1="9"
+      x2="25"
+      y2="41"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0.331731" stop-color="var(--color-logo)" />
+      <stop offset="1" stop-color="var(--color-logo)" stop-opacity="0.3" />
+    </linearGradient>
+  </defs>
+</svg>
