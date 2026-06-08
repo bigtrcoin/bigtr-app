@@ -17,8 +17,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-6">
-      <img src="/images/logo.png" alt="BigTrCoin" className="w-40" />
-      <h1 className="text-secondary text-2xl font-bold font-onest">
+      <h1 className="text-secondary text-3xl font-bold font-onest">
         BigTrCoin Presale
       </h1>
       <p className="text-secondary-60 font-onest">
