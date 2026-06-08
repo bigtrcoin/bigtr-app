@@ -303,8 +303,6 @@ const SaleChart = () => {
             activeDot={false}
             dot={<CustomDot />}
           />
-
-          <RechartsDevtools />
         </LineChart>
       </ResponsiveContainer>
     </div>
