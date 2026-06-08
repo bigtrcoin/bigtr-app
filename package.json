@@ -26,6 +26,7 @@
     "react-tabs": "^6.1.0",
     "recharts": "^2.15.3",
     "tailwindcss": "^4.1.18",
+    "thirdweb": "^5.120.0",
     "viem": "^2.45.1",
     "vite-plugin-svgr": "^4.5.0",
     "wagmi": "^3.4.1"
