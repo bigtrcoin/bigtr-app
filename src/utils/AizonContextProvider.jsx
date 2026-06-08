@@ -8,13 +8,11 @@ import { chainInfo, chainConfig } from "../contracts/chainConfig";
 import { TbMoon, TbSunLow } from "react-icons/tb";
 
 const AizonContextProvider = ({ children }) => {
-  // Available theme modes
   const themeModes = [
     { id: "dark", label: "Dark", icon: TbMoon },
     { id: "light", label: "Light", icon: TbSunLow },
   ];
 
-  // Available theme colors
   const themeColors = [
     { id: "green", label: "Green", color: "#05df72" },
     { id: "teal", label: "Teal", color: "#00D5BE" },
@@ -29,12 +27,11 @@ const AizonContextProvider = ({ children }) => {
   );
 
   const [themeColor, setThemeColor] = useState(
-    localStorage.getItem("aizonthemecolor") || "green",
+    localStorage.getItem("aizonthemecolor") || "blue",
   );
 
   useEffect(() => {
     document.documentElement.className = `theme-${themeMode} color-${themeColor}`;
-
     localStorage.setItem("aizonthememode", themeMode);
     localStorage.setItem("aizonthemecolor", themeColor);
   }, [themeMode, themeColor]);
@@ -55,22 +52,17 @@ const AizonContextProvider = ({ children }) => {
   }, [themeMode, themeColor]);
 
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
-  const { open } = useAppKit(); // controls modal
+  const { open } = useAppKit();
   const chainId = useChainId();
   const ethChainId = chainInfo[0].chainId;
   const bnbChainId = chainInfo[1].chainId;
-  const [payTokenList, setPayTokenList] = useState(
-    chainConfig(chainId).payTokens,
-  );
-  const [payTokenId, setPayTokenId] = useState(
-    chainConfig(chainId).payTokens[0].id,
-  );
+  const [payTokenList, setPayTokenList] = useState(chainConfig(chainId).payTokens);
+  const [payTokenId, setPayTokenId] = useState(chainConfig(chainId).payTokens[0].id);
   const [selectedImg, setSelectedImg] = useState(chainConfig(chainId).icon);
   const [titleText, setTitleText] = useState(chainConfig(chainId).title);
   const [IsActiveBuyOnEth, setIsActiveBuyOnEth] = useState(false);
   const [IsActiveBuyOnBnb, setIsActiveBuyOnBnb] = useState(true);
 
-  //format number
   const formatNumber = (num) => {
     let absNum = Math.abs(num);
     let formatted = num;
@@ -90,11 +82,9 @@ const AizonContextProvider = ({ children }) => {
     } else {
       formatted = formatSmart(num);
     }
-    const result = `${formatted.toLocaleString()}${suffix}`;
-    return result;
+    return `${formatted.toLocaleString()}${suffix}`;
   };
 
-  //format timestamp to custom datetime
   const formatTimestamp = (unixTimestamp) => {
     const date = new Date(unixTimestamp);
     return date.toLocaleString("en-GB", {
@@ -119,47 +109,42 @@ const AizonContextProvider = ({ children }) => {
   // variables
   const [userChainId, setUserChainId] = useState(chainConfig(chainId).chainId);
   const [userBalance, setUserBalance] = useState("0");
-  const [userTokenBalance, setUserTokenBalance] = useState(2569);
+  const [userTokenBalance, setUserTokenBalance] = useState(0);
   const [userPurchasedTokens, setUserPurchasedTokens] = useState(0);
   const [userPurchasedBonusTokens, setUserPurchasedBonusTokens] = useState(0);
-  const [userReferredTokens, setUserReferredTokens] = useState(102566);
-  const [userReferredPay, setUserReferredPay] = useState(569.56);
+  const [userReferredTokens, setUserReferredTokens] = useState(0);
+  const [userReferredPay, setUserReferredPay] = useState(0);
+
   // token
   const [tokenAddress, setTokenAddress] = useState(
     "0x6819be3120C602b64384Dc11e2178126c90AB606",
   );
-  const [tokenName, setTokenName] = useState("Aizon Token");
-  const [tokenSymbol, setTokenSymbol] = useState("$AIZON");
+  const [tokenName, setTokenName] = useState("BigTrCoin");
+  const [tokenSymbol, setTokenSymbol] = useState("$BIGTR");
   const [tokenDecimals, setTokenDecimals] = useState(18);
   const [tokenSubDecimals, setTokenSubDecimals] = useState(0);
   const [userTokenAllowance, setUserTokenAllowance] = useState(0);
   const [tokenTotalSupply, setTokenTotalSupply] = useState(690000000);
+
   // presale
-  const [maxStage, setMaxStage] = useState(12);
-  const [listingPrice, setListingPrice] = useState("0.005");
+  const [maxStage, setMaxStage] = useState(5);
+  const [listingPrice, setListingPrice] = useState("1.00");
   const [stageEnd, setStageEnd] = useState(1780483031);
   const [stages, setStages] = useState([
-    "0.0005",
-    "0.0006",
-    "0.0007",
-    "0.0008",
-    "0.0009",
-    "0.0010",
-    "0.0011",
-    "0.0012",
-    "0.0013",
-    "0.0014",
-    "0.0015",
-    "0.0016",
+    "0.05",
+    "0.10",
+    "0.20",
+    "0.50",
+    "1.00",
   ]);
-  const [currentStage, setCurrentStage] = useState(2);
-  const [currentPrice, setCurrentPrice] = useState("0.0005");
+  const [currentStage, setCurrentStage] = useState(1);
+  const [currentPrice, setCurrentPrice] = useState("0.05");
   const [nextStage, setNextStage] = useState(2);
-  const [nextPrice, setNextPrice] = useState("0.0006");
+  const [nextPrice, setNextPrice] = useState("0.10");
   const [tokenSold, setTokenSold] = useState(0);
-  const [raisedUsd, setRaisedUsd] = useState(2498713.28);
-  const [goalUsd, setGoalUsd] = useState(2500000);
-  const [tokenPercent, setTokenPercent] = useState(28.22);
+  const [raisedUsd, setRaisedUsd] = useState(3550000);
+  const [goalUsd, setGoalUsd] = useState(10000000);
+  const [tokenPercent, setTokenPercent] = useState(35.5);
   const [purchaseBonus, setPurchaseBonus] = useState(5);
   const [referralBonus, setReferralBonus] = useState(10);
   const [referralBonusPay, setReferralBonusPay] = useState(5);
@@ -174,33 +159,29 @@ const AizonContextProvider = ({ children }) => {
   const [listingPayAmount, setListingPayAmount] = useState(0);
   const [bonusAmount, setBonusAmount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  //paytokens
+
+  // paytokens
   const [usdtDecimals, setUsdtDecimals] = useState(18);
   const [usdtAllowance, setUsdtAllowance] = useState(0);
   const [usdtBalance, setUsdtBalance] = useState(0);
   const [usdcDecimals, setUsdcDecimals] = useState(18);
   const [usdcAllowance, setUsdcAllowance] = useState(0);
   const [usdcBalance, setUsdcBalance] = useState(0);
-  //stake
-  const [totalStaked, setTotalStaked] = useState(10000000);
+
+  // stake
+  const [totalStaked, setTotalStaked] = useState(0);
   const [totalReward, setTotalReward] = useState(0);
   const [stakeLevelId, setStakeLevelId] = useState(0);
   const [stakeLevels, setStakeLevels] = useState(null);
   const [userStakeLevelId, setUserStakeLevelId] = useState(0);
-  const [userStakeAmount, setUserStakeAmount] = useState(25000);
+  const [userStakeAmount, setUserStakeAmount] = useState(0);
   const [userStakeLockTime, setUserStakeLockTime] = useState(0);
-  const [userGetRewardAmount, setUserGetRewardAmount] = useState(893);
+  const [userGetRewardAmount, setUserGetRewardAmount] = useState(0);
 
-  // switch network
   const { switchChain } = useSwitchChain();
-
-  // users wallet read
   const { address: addressData, isConnected } = useConnection();
-  const { data: balanceData } = useBalance({
-    address: addressData,
-  });
+  const { data: balanceData } = useBalance({ address: addressData });
 
-  // make empty inputs
   const makeEmptyInputs = () => {
     setPresaleStatus(null);
     setPaymentAmount("");
@@ -213,12 +194,10 @@ const AizonContextProvider = ({ children }) => {
     setGetBonusToken(0);
   };
 
-  // make empty inputs on chnging network or wallet
   useEffect(() => {
     makeEmptyInputs();
   }, [addressData]);
 
-  // update variables with contracts data
   useEffect(() => {
     if (chainId) {
       setUserChainId(chainId);
@@ -247,7 +226,6 @@ const AizonContextProvider = ({ children }) => {
     }
   }, [chainId]);
 
-  // handle payment input
   const handlePaymentInput = (e) => {
     let _inputValue = e.target.value;
     setBuyAmount(_inputValue);
@@ -264,15 +242,10 @@ const AizonContextProvider = ({ children }) => {
       requestOptions,
     )
       .then((response) => response.json())
-      .then((result) => {
-        return result.data.rates.USD;
-      })
-      .catch((error) => {
-        return ("error", error);
-      });
+      .then((result) => result.data.rates.USD)
+      .catch((error) => ("error", error));
   };
 
-  // handle payment input
   const handlePaymentInputBuy = async (e) => {
     let _inputValue = e.target.value;
     setPaymentAmount(_inputValue);
@@ -289,7 +262,6 @@ const AizonContextProvider = ({ children }) => {
     setTotalAmount(_totalAmount);
   };
 
-  // handle payment input
   const handlePayTokenInput = (e) => {
     let _inputValue = e.target.value;
     setPaymentAmount(_inputValue);
@@ -305,7 +277,6 @@ const AizonContextProvider = ({ children }) => {
   return (
     <AizonContext.Provider
       value={{
-        //theme mode, color
         themeModes,
         themeColors,
         themeMode,
@@ -313,7 +284,6 @@ const AizonContextProvider = ({ children }) => {
         themeColor,
         setThemeColor,
         colors,
-
         isSidebarVisible,
         setIsSidebarVisible,
         open,
@@ -335,11 +305,9 @@ const AizonContextProvider = ({ children }) => {
         formatNumber,
         addressData,
         isConnected,
-        //user balance
         userBalance,
         usdtBalance,
         usdcBalance,
-        //token
         tokenAddress,
         tokenName,
         tokenSymbol,
@@ -353,7 +321,6 @@ const AizonContextProvider = ({ children }) => {
         purchaseBonus,
         referralBonus,
         referralBonusPay,
-        //presale
         maxStage,
         stages,
         currentStage,
@@ -374,8 +341,6 @@ const AizonContextProvider = ({ children }) => {
         handlePaymentInput,
         handlePaymentInputBuy,
         handlePayTokenInput,
-
-        //stake
         totalStaked,
         totalReward,
         stakeLevelId,
