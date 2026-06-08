@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { RechartsDevtools } from "@recharts/devtools";
 import {
   Line,
   XAxis,
