@@ -16,12 +16,13 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-6">
-      <h1 className="text-secondary text-3xl font-bold font-onest">
+    <div style={{ backgroundColor: "#147bff" }} className="min-h-screen flex flex-col items-center justify-center gap-6">
+      <img src="/logo.png" alt="BigTrCoin" style={{ width: "160px" }} />
+      <h1 style={{ color: "#ffffff" }} className="text-3xl font-bold font-onest">
         BigTrCoin Presale
       </h1>
-      <p className="text-secondary-60 font-onest">
-        Panele girmek için cüzdanınızı bağlayın
+      <p style={{ color: "#ffffff" }} className="font-onest">
+        Connect your wallet to access the presale panel
       </p>
       <ConnectButton client={client} />
     </div>
