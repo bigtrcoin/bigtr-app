@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+"@recharts/devtools": "^0.0.8",
     "@reown/appkit": "^1.8.17",
     "@reown/appkit-adapter-wagmi": "^1.8.17",
     "@tailwindcss/vite": "^4.1.18",
