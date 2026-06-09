@@ -62,12 +62,12 @@ const Banner = () => {
 
         <div className="w-full lg:w-[70%]">
           <h2 className="mb-5 sm:mb-4.5 w-full max-w-62.5 sm:max-w-75 md:max-w-99.25 uppercase font-chakrapetch text-3xl sm:text-4xl md:text-[50px] md:leading-15 font-bold text-white">
-            Discover the Next Big Token
+            Discover BigTrCoin
           </h2>
 
           <p className="max-w-full w-full md:max-w-128.5 text-base sm:leading-8 font-medium text-white">
-            Buy tokens now and reap the benefits of the blockchain revolution.
-            Benefit and influence the development of a project
+            Buy $BIGTR now and be part of the next generation blockchain revolution.
+	Join the presale and influence the future of BigTrCoin.
           </p>
 
           <div className="mt-8 sm:mt-10 flex items-center gap-5 xl:gap-12 flex-wrap">

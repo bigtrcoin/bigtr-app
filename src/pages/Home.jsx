@@ -9,7 +9,7 @@ import RioCalculate from "../components/common/RioCalculate";
 
 const Home = () => {
   return (
-    <Layout pageTitle="Aizon - Presale Overview">
+    <Layout pageTitle="BigTrCoin - Presale Overview">
       <ScrollAnimate>
         {/* banner */}
         <Banner />
