@@ -3,14 +3,12 @@ import {
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   LineChart,
   ResponsiveContainer,
-  ReferenceArea,
 } from "recharts";
 
-const CustomYAxisTick = ({ x, y, payload, index }) => {
+const CustomYAxisTick = ({ x, y, payload }) => {
   return (
     <text
       x={x - 16}
@@ -26,20 +24,17 @@ const CustomYAxisTick = ({ x, y, payload, index }) => {
   );
 };
 
-const CustomTooltip = ({ active, payload, index }) => {
+const CustomTooltip = ({ active, payload }) => {
   const isVisible = active && payload && payload.length;
-
   return (
     <div
-      className={`px-1 py-0.5 rounded-[5px] bg-secondary-15 `}
+      className="px-1 py-0.5 rounded-[5px] bg-secondary-15"
       style={{ visibility: isVisible ? "visible" : "hidden" }}
     >
       {isVisible && (
-        <>
-          <p className="font-onest font-medium text-sm text-secondary">
-            ${payload[0].value}
-          </p>
-        </>
+        <p className="font-onest font-medium text-sm text-secondary">
+          ${payload[0].value}
+        </p>
       )}
     </div>
   );
@@ -47,39 +42,27 @@ const CustomTooltip = ({ active, payload, index }) => {
 
 const CustomizedLabel = ({ x, y, value, index }) => {
   if (value == null) return null;
-
-  const padding = 4; // space around text
+  const padding = 4;
   const fontSize = 14;
-  const textWidth = value?.toString().length * (fontSize * 0.6) || 0; // rough width
+  const textWidth = value?.toString().length * (fontSize * 0.6) || 0;
   const textHeight = fontSize;
-
   return (
     <g transform={`translate(${x}, ${y - 10})`}>
-      {/* Background rectangle */}
       <rect
         x={-textWidth / 2 - padding}
         y={-25}
         width={textWidth + padding * 4}
         height={textHeight + padding * 2}
-        // fill={`${index == 7 ? "var(--color-primary)" : "var(--color-secondary-10)"}`}
-        // fill={
-        //   index === 3
-        //     ? "var(--color-primary)"
-        //     : index === 7
-        //       ? "var(--color-primary)"
-        //       : "var(--color-secondary-10)"
-        // }
-        fill={`${index == 7 ? "var(--color-primary)" : index == 3 ? "var(--color-label-active)" : "var(--color-secondary-10)"}`}
-        rx={5} // rounded corners
+        fill={`${index == 4 ? "var(--color-primary)" : index == 2 ? "var(--color-label-active)" : "var(--color-secondary-10)"}`}
+        rx={5}
       />
-      {/* Text */}
       <text
         x={2}
         y={-12}
         fill={
-          index === 3
+          index === 2
             ? "var(--color-text-active)"
-            : index === 7
+            : index === 4
               ? "var(--color-surface)"
               : "var(--color-secondary)"
         }
@@ -95,33 +78,27 @@ const CustomizedLabel = ({ x, y, value, index }) => {
 };
 
 const CustomDot = (props) => {
-  const { cx, cy, payload, index } = props;
-
+  const { cx, cy, index } = props;
   if (cx == null || cy == null) return null;
-
-  const specialIndexes = [3, 7];
+  const specialIndexes = [2, 4];
   const isSpecial = specialIndexes.includes(index);
-
   let fill = "var(--color-secondary)";
   let r = 4;
   let stroke = "transparent";
   let strokeWidth = 2;
 
-  if (index < 3) {
+  if (index < 2) {
     stroke = "transparent";
     strokeWidth = 0;
   }
-
-  if (index === 3) {
+  if (index === 2) {
     fill = "var(--color-secondary)";
     stroke = "var(--color-primary)";
   }
-
-  if (index > 3) {
+  if (index > 2) {
     fill = "var(--color-secondary-30)";
   }
-
-  if (index === 7) {
+  if (index === 4) {
     fill = "var(--color-primary)";
     stroke = "var(--color-secondary-20)";
   }
@@ -129,18 +106,12 @@ const CustomDot = (props) => {
   if (isSpecial) {
     return (
       <g>
-        {/* outer circle */}
         <circle cx={cx} cy={cy} r={12} fill={stroke} />
-
-        {/* middle circle */}
         <circle cx={cx} cy={cy} r={9} fill="var(--color-dot-middle)" />
-
-        {/* inner dot */}
         <circle cx={cx} cy={cy} r={5} fill={fill} />
       </g>
     );
   }
-
   return (
     <circle
       cx={cx}
@@ -155,33 +126,27 @@ const CustomDot = (props) => {
 
 const SaleChart = () => {
   const data1 = [
-    { name: "STG 1", price: 0.03, future: null },
+    { name: "STG 1", price: 0.05, future: null },
     { name: "STG 2", price: null, future: null },
-    { name: "STG 3", price: 0.05, future: null },
-    { name: "STG 21", price: 0.23, future: 0.23 },
-    { name: "STG 22", price: null, future: null },
-    { name: "STG 23", price: null, future: null },
-    { name: "STG 24", price: null, future: 0.26 },
-    { name: "LISTING", price: null, future: 0.5 },
+    { name: "STG 3", price: 0.20, future: 0.20 },
+    { name: "STG 4", price: null, future: 0.50 },
+    { name: "LISTING", price: null, future: 1.00 },
   ];
 
   const data2 = [
-    { name: "STG 1", price: 0.03, future: null },
-    { name: "STG 3", price: 0.05, future: null },
-    { name: "STG 21", price: 0.23, future: 0.23 },
-    { name: "STG 24", price: null, future: 0.26 },
-    { name: "LISTING", price: null, future: 0.5 },
+    { name: "STG 1", price: 0.05, future: null },
+    { name: "STG 3", price: 0.20, future: 0.20 },
+    { name: "STG 4", price: null, future: 0.50 },
+    { name: "LISTING", price: null, future: 1.00 },
   ];
 
   const data3 = [
-    { name: "STG 1", price: 0.03, future: null },
-    { name: "STG 3", price: 0.05, future: null },
-    { name: "STG 21", price: 0.23, future: 0.23 },
-    { name: "LISTING", price: null, future: 0.5 },
+    { name: "STG 1", price: 0.05, future: null },
+    { name: "STG 3", price: 0.20, future: 0.20 },
+    { name: "LISTING", price: null, future: 1.00 },
   ];
 
   const [data, setData] = useState(data1);
-
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -193,19 +158,16 @@ const SaleChart = () => {
       } else {
         setData(data1);
       }
-
       setIsMobile(window.innerWidth <= 1280);
     };
-
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const CustomXAxisTick = ({ x, y, payload, index }) => {
+  const CustomXAxisTick = ({ x, y, payload }) => {
     const width = window.innerWidth;
     const isPoint = width > 800 && width <= 991;
-
     const tx = payload.coordinate + 40;
     const ty = y + 16;
     return (
@@ -232,17 +194,14 @@ const SaleChart = () => {
 
   return (
     <div className="w-full h-55 sm:h-62.5 2xl:h-75 relative overflow-hidden uppercase mb-7 pr-5 md:pr-6.25 2xl:pr-10">
-      <div className="absolute inset-x-0 bottom-8.75 top-0 grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-8 pl-15.75 pr-5.75 2xl:pr-10.75">
+      <div className="absolute inset-x-0 bottom-8.75 top-0 grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 pl-15.75 pr-5.75 2xl:pr-10.75">
         {data?.map((_, i) => (
-          <div
-            key={i}
-            className="h-full border-r border-b border-secondary-10"
-          />
+          <div key={i} className="h-full border-r border-b border-secondary-10" />
         ))}
       </div>
 
-      <div className="absolute inset-x-0 bottom-8.75 top-0 grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-8 pl-15.75 pr-5.75 2xl:pr-10.75 pointer-events-none">
-        <div className="col-span-2 xs:col-span-2 sm:col-span-3" />
+      <div className="absolute inset-x-0 bottom-8.75 top-0 grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 pl-15.75 pr-5.75 2xl:pr-10.75 pointer-events-none">
+        <div className="col-span-1 xs:col-span-2 sm:col-span-2" />
         <div className="bg-primary-8" />
         <div className="col-span-1 xs:col-span-1 sm:col-span-2" />
       </div>
@@ -254,30 +213,20 @@ const SaleChart = () => {
             dataKey="name"
             type="category"
             allowDuplicatedCategory={false}
-            axisLine={{
-              stroke: "var(--color-secondary-10)",
-              strokeWidth: 0,
-            }}
+            axisLine={{ stroke: "var(--color-secondary-10)", strokeWidth: 0 }}
             tickLine={false}
             tick={<CustomXAxisTick />}
             interval={0}
           />
-
           <YAxis
             dataKey="price"
-            axisLine={{
-              stroke: "var(--color-secondary-10)",
-              strokeWidth: 1,
-            }}
+            axisLine={{ stroke: "var(--color-secondary-10)", strokeWidth: 1 }}
             tickLine={false}
-            domain={[0, 0.6]}
+            domain={[0, 1.2]}
             tickCount={4}
             tick={<CustomYAxisTick />}
           />
-
-          {/* tooltip */}
           <Tooltip active={false} content={<CustomTooltip />} />
-
           <Line
             connectNulls
             type="linear"
@@ -290,7 +239,6 @@ const SaleChart = () => {
             activeDot={false}
             dot={<CustomDot />}
           />
-
           <Line
             connectNulls
             type="linear"
