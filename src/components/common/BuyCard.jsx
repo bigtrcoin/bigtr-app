@@ -1,10 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { useAizonData } from "../../utils/AizonContext";
 import DropdownChain from "./DropdownChain";
+import { PayEmbed } from "thirdweb/react";
+import { createThirdwebClient } from "thirdweb";
 
 import { FaCircle } from "react-icons/fa6";
+import { FiCreditCard } from "react-icons/fi";
+
+const client = createThirdwebClient({
+  clientId: "807215563adc5564b9e3ece0321aabac",
+});
 
 const BuyCard = () => {
   const {
@@ -41,6 +48,7 @@ const BuyCard = () => {
   } = useAizonData();
 
   const { referralAddress } = useParams();
+  const [showCardPayment, setShowCardPayment] = useState(false);
 
   useEffect(() => {
     if (referralAddress) {
@@ -85,7 +93,7 @@ const BuyCard = () => {
             </h4>
           </div>
 
-          <div className="mb-6 w-full h-7.5 rounded-[10px] overflow-hidden bg-secondary-10 ">
+          <div className="mb-6 w-full h-7.5 rounded-[10px] overflow-hidden bg-secondary-10">
             <div
               className="h-full bg-primary"
               style={{ width: `${tokenPercent}%` }}
@@ -104,228 +112,221 @@ const BuyCard = () => {
           </div>
         </div>
 
-        <Tabs>
-          <div className="mb-5 sm:mb-9 flex items-center gap-5 2xl:gap-10 flex-wrap md:flex-nowrap">
-            <div className="w-full sm:w-fit">
-              <h4 className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
-                Select chain
-              </h4>
+        {!showCardPayment ? (
+          <Tabs>
+            <div className="mb-5 sm:mb-9 flex items-center gap-5 2xl:gap-10 flex-wrap md:flex-nowrap">
+              <div className="w-full sm:w-fit">
+                <h4 className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
+                  Select chain
+                </h4>
+                <DropdownChain
+                  selectedImg={selectedImg}
+                  titleText={titleText}
+                  setIsActiveBuyOnEth={setIsActiveBuyOnEth}
+                  setIsActiveBuyOnBnb={setIsActiveBuyOnBnb}
+                  switchChain={switchChain}
+                  makeEmptyInputs={makeEmptyInputs}
+                  ethChainId={ethChainId}
+                  bnbChainId={bnbChainId}
+                />
+              </div>
 
-              {/* dropdown chain */}
-              <DropdownChain
-                selectedImg={selectedImg}
-                titleText={titleText}
-                setIsActiveBuyOnEth={setIsActiveBuyOnEth}
-                setIsActiveBuyOnBnb={setIsActiveBuyOnBnb}
-                switchChain={switchChain}
-                makeEmptyInputs={makeEmptyInputs}
-                ethChainId={ethChainId}
-                bnbChainId={bnbChainId}
-              />
-            </div>
-
-            <div className="w-full sm:w-fit">
-              <h4 className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
-                Payment Method
-              </h4>
-
-              <TabList className="w-full grid grid-cols-3 gap-2 2xl:gap-3.75">
-                {payTokenList?.map((item, i) => (
-                  <Tab key={i} onClick={() => handleTab(item)}>
-                    <div className="w-7.5 h-7.5 rounded-full relative">
-                      <img
-                        src={item.img}
-                        alt="icon"
-                        className="w-full h-full"
-                      />
-
-                      <div
-                        className={`absolute -bottom-0.75 -right-1.5 w-4.5 h-4.5 rounded-full flex items-center justify-center  ${themeMode == "dark" ? "bg-[#26242B]" : "bg-[#f7f8f8]"}`}
-                      >
-                        <img
-                          src={selectedImg}
-                          alt="icon"
-                          className="w-3.5 h-3.5"
-                        />
+              <div className="w-full sm:w-fit">
+                <h4 className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
+                  Payment Method
+                </h4>
+                <TabList className="w-full grid grid-cols-3 gap-2 2xl:gap-3.75">
+                  {payTokenList?.map((item, i) => (
+                    <Tab key={i} onClick={() => handleTab(item)}>
+                      <div className="w-7.5 h-7.5 rounded-full relative">
+                        <img src={item.img} alt="icon" className="w-full h-full" />
+                        <div className={`absolute -bottom-0.75 -right-1.5 w-4.5 h-4.5 rounded-full flex items-center justify-center ${themeMode == "dark" ? "bg-[#26242B]" : "bg-[#f7f8f8]"}`}>
+                          <img src={selectedImg} alt="icon" className="w-3.5 h-3.5" />
+                        </div>
                       </div>
-                    </div>
-                    <span className="text-secondary">{item.name}</span>
-                  </Tab>
-                ))}
-              </TabList>
+                      <span className="text-secondary">{item.name}</span>
+                    </Tab>
+                  ))}
+                </TabList>
+              </div>
             </div>
-          </div>
 
-          {payTokenList?.map((item, i) => (
-            <TabPanel key={i}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-7.5">
-                <div className="mb-5 sm:mb-10">
-                  <div className="mb-2 flex items-center gap-2 justify-between">
-                    <label className="block font-chakrapetch uppercase text-base font-bold text-secondary">
-                      Pay Token
-                    </label>
+            {payTokenList?.map((item, i) => (
+              <TabPanel key={i}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-7.5">
+                  <div className="mb-5 sm:mb-10">
+                    <div className="mb-2 flex items-center gap-2 justify-between">
+                      <label className="block font-chakrapetch uppercase text-base font-bold text-secondary">
+                        Pay Token
+                      </label>
+                      {payTokenId == 1 && (
+                        <p className="font-chakrapetch uppercase text-right text-sm text-secondary">
+                          {userBalance} : Balance
+                        </p>
+                      )}
+                      {payTokenId == 2 && (
+                        <p className="font-chakrapetch uppercase text-right text-sm text-secondary">
+                          {formatNumber(usdtBalance)} {item.name} : Balance
+                        </p>
+                      )}
+                      {payTokenId == 3 && (
+                        <p className="font-chakrapetch uppercase text-right text-sm text-secondary">
+                          {formatNumber(usdcBalance)} {item.name} : Balance
+                        </p>
+                      )}
+                    </div>
 
                     {payTokenId == 1 && (
-                      <p className="font-chakrapetch uppercase text-right text-sm text-secondary">
-                        {userBalance} : Balance
-                      </p>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          className="w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 pr-20 bg-secondary-3 border-2 border-secondary-8 font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
+                          placeholder="Enter Amount"
+                          value={paymentAmount}
+                          onChange={handlePaymentInputBuy}
+                        />
+                        <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 flex items-center gap-2">
+                          <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
+                            {payTokenList[0]?.name}
+                          </button>
+                        </div>
+                      </div>
                     )}
+
                     {payTokenId == 2 && (
-                      <p className="font-chakrapetch uppercase text-right text-sm text-secondary">
-                        {formatNumber(usdtBalance)} {item.name} : Balance
-                      </p>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          className="w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 pr-20 bg-secondary-3 border-2 border-secondary-8 font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
+                          placeholder="Enter Amount"
+                          value={paymentAmount === "" || paymentAmount === 0 ? "Enter Amount" : paymentAmount}
+                          onChange={handlePayTokenInput}
+                        />
+                        <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 flex items-center gap-2">
+                          <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
+                            {item.name}
+                          </button>
+                        </div>
+                      </div>
                     )}
+
                     {payTokenId == 3 && (
-                      <p className="font-chakrapetch uppercase text-right text-sm text-secondary">
-                        {formatNumber(usdcBalance)} {item.name} : Balance
-                      </p>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          className="w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 pr-20 bg-secondary-3 border-2 border-secondary-8 font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
+                          placeholder="Enter Amount"
+                          value={paymentAmount === "" || paymentAmount === 0 ? "Enter Amount" : paymentAmount}
+                          onChange={handlePayTokenInput}
+                        />
+                        <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 flex items-center gap-2">
+                          <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
+                            {item.name}
+                          </button>
+                        </div>
+                      </div>
                     )}
                   </div>
 
-                  {payTokenId == 1 && (
+                  <div className="mb-5 sm:mb-10">
+                    <label className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
+                      Usd Value
+                    </label>
                     <div className="relative">
                       <input
                         type="number"
                         className="w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 pr-20 bg-secondary-3 border-2 border-secondary-8 font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
-                        placeholder="Enter Amount"
-                        value={paymentAmount}
-                        onChange={handlePaymentInputBuy}
+                        disabled
+                        value={Number(paymentUsd).toFixed(2)}
                       />
-
-                      <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 flex items-center gap-2">
-                        <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
-                          {payTokenList[0]?.name}
-                        </button>
-                      </div>
+                      <button className="cursor-default absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
+                        USD
+                      </button>
                     </div>
-                  )}
-
-                  {payTokenId == 2 && (
-                    <div className="relative">
-                      <input
-                        type="number"
-                        className="w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 pr-20 bg-secondary-3 border-2 border-secondary-8 font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
-                        placeholder="Enter Amount"
-                        value={
-                          paymentAmount === "" || paymentAmount === 0
-                            ? "Enter Amount"
-                            : paymentAmount
-                        }
-                        onChange={handlePayTokenInput}
-                      />
-
-                      <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 flex items-center gap-2">
-                        <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
-                          {item.name}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {payTokenId == 3 && (
-                    <div className="relative">
-                      <input
-                        type="number"
-                        className="w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 pr-20 bg-secondary-3 border-2 border-secondary-8 font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
-                        placeholder="Enter Amount"
-                        value={
-                          paymentAmount === "" || paymentAmount === 0
-                            ? "Enter Amount"
-                            : paymentAmount
-                        }
-                        onChange={handlePayTokenInput}
-                      />
-
-                      <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 flex items-center gap-2">
-                        <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
-                          {item.name}
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
                 <div className="mb-5 sm:mb-10">
                   <label className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
-                    Usd Value
+                    Get Token
                   </label>
-
-                  <div className="relative">
+                  <div className="relative w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 bg-secondary-3 border-2 border-secondary-8">
                     <input
                       type="number"
-                      className="w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 pr-20 bg-secondary-3 border-2 border-secondary-8 font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
+                      className="w-full bg-transparent font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
                       disabled
-                      value={Number(paymentUsd).toFixed(2)}
+                      value={totalAmount}
                     />
-
-                    <button className="cursor-default absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
-                      USD
-                    </button>
+                    <div className="flex sm:hidden items-center gap-2 flex-wrap">
+                      <p className="uppercase font-chakrapetch text-base font-bold text-secondary">
+                        {buyAmount} + {bonusAmount}{" "}
+                        <span className="text-primary">({purchaseBonus}% Bonus)</span>
+                      </p>
+                      <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
+                        {tokenSymbol}
+                      </button>
+                    </div>
+                    <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 hidden sm:flex items-center gap-2">
+                      <p className="uppercase font-chakrapetch text-base font-bold text-secondary">
+                        {buyAmount} + {bonusAmount}{" "}
+                        <span className="text-primary">({purchaseBonus}% Bonus)</span>
+                      </p>
+                      <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
+                        {tokenSymbol}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mb-5 sm:mb-10">
-                <label className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
-                  Get Token
-                </label>
-
-                <div className="relative w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 bg-secondary-3 border-2 border-secondary-8">
-                  <input
-                    type="number"
-                    className="w-full bg-transparent font-chakrapetch text-lg sm:text-2xl font-bold text-secondary transition focus:outline-none"
-                    disabled
-                    value={totalAmount}
-                  />
-
-                  <div className="flex sm:hidden items-center gap-2 flex-wrap">
-                    <p className="uppercase font-chakrapetch text-base font-bold text-secondary">
-                      {buyAmount} + {bonusAmount}{" "}
-                      <span className="text-primary">
-                        ({purchaseBonus}% Bonus)
-                      </span>
-                    </p>
-                    <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
-                      {tokenSymbol}
-                    </button>
-                  </div>
-
-                  <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 hidden sm:flex items-center gap-2">
-                    <p className="uppercase font-chakrapetch text-base font-bold text-secondary">
-                      {buyAmount} + {bonusAmount}{" "}
-                      <span className="text-primary">
-                        ({purchaseBonus}% Bonus)
-                      </span>
-                    </p>
-                    <button className="cursor-default px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
-                      {tokenSymbol}
-                    </button>
-                  </div>
+                <div className="mb-7.5">
+                  <button className="aizon-btn w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-primary font-chakrapetch uppercase text-[18px] leading-none font-bold text-btn-text">
+                    <span className="btn-inner">
+                      <span className="btn-normal-text">Buy Now</span>
+                      <span className="btn-hover-text">Buy Now</span>
+                    </span>
+                  </button>
                 </div>
-              </div>
 
-              <div className="mb-7.5">
-                <button className="aizon-btn w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-primary font-chakrapetch uppercase text-[18px] leading-none font-bold text-btn-text">
+                <div className="mb-7.5">
+                  <button
+                    onClick={() => setShowCardPayment(true)}
+                    className="aizon-btn w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-secondary-15 font-chakrapetch uppercase text-[18px] leading-7 font-bold text-secondary flex items-center justify-center gap-3"
+                  >
+                    <FiCreditCard className="text-2xl" />
+                    <span>Pay with Credit Card</span>
+                  </button>
+                </div>
+
+                <button className="aizon-btn w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-primary-15 font-chakrapetch uppercase text-[18px] leading-7 font-bold text-primary">
                   <span className="btn-inner">
-                    <span className="btn-normal-text">Buy Now</span>
-                    <span className="btn-hover-text">Buy Now</span>
+                    <span className="btn-normal-text">Buy And Stake for 150% Rewards</span>
+                    <span className="btn-hover-text">Buy And Stake for 150% Rewards</span>
                   </span>
                 </button>
-              </div>
-
-              <button className="aizon-btn w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-primary-15 font-chakrapetch uppercase text-[18px] leading-7 font-bold text-primary">
-                <span className="btn-inner">
-                  <span className="btn-normal-text">
-                    Buy And Stake for 150% Rewards
-                  </span>
-                  <span className="btn-hover-text">
-                    Buy And Stake for 150% Rewards
-                  </span>
-                </span>
+              </TabPanel>
+            ))}
+          </Tabs>
+        ) : (
+          <div>
+            <div className="mb-5 flex items-center justify-between">
+              <h4 className="font-chakrapetch uppercase text-base font-bold text-secondary">
+                Pay with Credit Card
+              </h4>
+              <button
+                onClick={() => setShowCardPayment(false)}
+                className="px-4 py-2 rounded-[10px] bg-secondary-15 font-chakrapetch uppercase text-sm font-bold text-secondary"
+              >
+                Back to Crypto
               </button>
-            </TabPanel>
-          ))}
-        </Tabs>
+            </div>
+            <div className="flex justify-center">
+              <PayEmbed
+                client={client}
+                theme={themeMode === "dark" ? "dark" : "light"}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
