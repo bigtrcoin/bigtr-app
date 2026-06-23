@@ -32,6 +32,7 @@ const LeaderboardAll = () => {
       </div>
 
       {/* leaderboard podium view */}
+      {Data.length > 0 && (
       <div className="relative z-1 flex items-end justify-center">
         {/* 2nd place */}
         <div className="flex flex-col items-center gap-5">
@@ -39,17 +40,17 @@ const LeaderboardAll = () => {
           <div className="text-center">
             <p className="mb-2 font-chakrapetch font-bold text-xs xs:text-base sm:text-[20px] text-secondary">
               <span className="hidden sm:block">
-                {Data[1]?.walletAddress.slice(0, 5)}...
-                {Data[1]?.walletAddress.slice(-5)}
+                {Data[1]?.walletAddress?.slice(0, 5)}...
+                {Data[1]?.walletAddress?.slice(-5)}
               </span>
               <span className="block sm:hidden">
-                {Data[1]?.walletAddress.slice(0, 4)}...
-                {Data[1]?.walletAddress.slice(-2)}
+                {Data[1]?.walletAddress?.slice(0, 4)}...
+                {Data[1]?.walletAddress?.slice(-2)}
               </span>
             </p>
             <span className="flex items-center flex-col gap-0.5 xs:gap-1 xs:flex-row rounded-[10px] py-1.5 px-1.25 xs:px-2.5 bg-secondary-10 font-chakrapetch font-bold text-xs sm:text-base text-secondary">
               <span className="text-primary">
-                {Number(Data[1]?.totalAmount).toLocaleString()}
+                {Number(Data[1]?.totalAmount || 0).toLocaleString()}
               </span>{" "}
               {tokenSymbol}
             </span>
@@ -76,17 +77,17 @@ const LeaderboardAll = () => {
           <div className="text-center">
             <p className="mb-2 font-chakrapetch font-bold text-xs xs:text-base sm:text-[20px] text-secondary">
               <span className="hidden sm:block">
-                {Data[0]?.walletAddress.slice(0, 5)}...
-                {Data[0]?.walletAddress.slice(-5)}
+                {Data[0]?.walletAddress?.slice(0, 5)}...
+                {Data[0]?.walletAddress?.slice(-5)}
               </span>
               <span className="block sm:hidden">
-                {Data[0]?.walletAddress.slice(0, 4)}...
-                {Data[0]?.walletAddress.slice(-2)}
+                {Data[0]?.walletAddress?.slice(0, 4)}...
+                {Data[0]?.walletAddress?.slice(-2)}
               </span>
             </p>
             <span className="flex items-center flex-col gap-0.5 xs:gap-1 xs:flex-row rounded-[10px] py-1.5 px-1.25 xs:px-2.5 bg-secondary-10 font-chakrapetch font-bold text-xs sm:text-base text-secondary">
               <span className="text-primary">
-                {Number(Data[0]?.totalAmount).toLocaleString()}
+                {Number(Data[0]?.totalAmount || 0).toLocaleString()}
               </span>{" "}
               {tokenSymbol}
             </span>
@@ -113,17 +114,17 @@ const LeaderboardAll = () => {
           <div className="text-center">
             <p className="mb-2 font-chakrapetch font-bold text-xs xs:text-base sm:text-[20px] text-secondary">
               <span className="hidden sm:block">
-                {Data[2]?.walletAddress.slice(0, 5)}...
-                {Data[2]?.walletAddress.slice(-5)}
+                {Data[2]?.walletAddress?.slice(0, 5)}...
+                {Data[2]?.walletAddress?.slice(-5)}
               </span>
               <span className="block sm:hidden">
-                {Data[2]?.walletAddress.slice(0, 4)}...
-                {Data[2]?.walletAddress.slice(-2)}
+                {Data[2]?.walletAddress?.slice(0, 4)}...
+                {Data[2]?.walletAddress?.slice(-2)}
               </span>
             </p>
             <span className="flex items-center flex-col gap-0.5 xs:gap-1 xs:flex-row rounded-[10px] py-1.5 px-1.25 xs:px-2.5 bg-secondary-10 font-chakrapetch font-bold text-xs sm:text-base text-secondary">
               <span className="text-primary">
-                {Number(Data[2]?.totalAmount).toLocaleString()}
+                {Number(Data[2]?.totalAmount || 0).toLocaleString()}
               </span>{" "}
               {tokenSymbol}
             </span>
@@ -144,14 +145,16 @@ const LeaderboardAll = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* user rank */}
-      <div className="mb-4 p-3.25 text-center bg-[linear-gradient(90deg,#ffffff00_0%,var(--color-secondary-6)_50%,#ffffff00_100%)]">
-        <h2 className="uppercase font-chakrapetch font-bold text-[15px] md:text-[16px] text-secondary">
-          Your Rank <span className="text-primary">#256</span> Out of{" "}
-          <span className="text-primary">#87,855</span>
-        </h2>
-      </div>
+      {Data.length > 0 && (
+        <div className="mb-4 p-3.25 text-center bg-[linear-gradient(90deg,#ffffff00_0%,var(--color-secondary-6)_50%,#ffffff00_100%)]">
+          <h2 className="uppercase font-chakrapetch font-bold text-[15px] md:text-[16px] text-secondary">
+            Leaderboard updates as the presale progresses
+          </h2>
+        </div>
+      )}
 
       {/* leaderboard table */}
       <div className="w-full overflow-x-auto pb-3">
@@ -174,6 +177,9 @@ const LeaderboardAll = () => {
             </tr>
           </thead>
           <tbody>
+            {Data.length === 0 && (
+              <tr><td colSpan={3} className="py-6 text-center text-secondary-80 font-chakrapetch uppercase">No participants yet</td></tr>
+            )}
             {Data?.map((item, i) => (
               <tr
                 key={i}

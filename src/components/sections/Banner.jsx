@@ -33,7 +33,7 @@ const Banner = () => {
     <section className="pb-7.5">
       <div className="rounded-[15px] overflow-hidden relative z-0 px-5 md:px-6.25 2xl:px-10 py-5 sm:py-10 2xl:pt-11.5 2xl:pb-14.5 flex flex-col gap-10 lg:flex-row lg:gap-0 justify-between bg-linear-to-t from-shape to-shape-end">
         <div className="absolute -z-1 top-0 left-0 h-full">
-          <img src={DotsImg} alt="dots" className=" h-full object-cover" />
+          <img src={DotsImg} alt="dots" className="h-full object-cover" />
         </div>
 
         <div className="absolute -z-1 top-0 left-0">
@@ -51,11 +51,7 @@ const Banner = () => {
             </div>
 
             <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] animate-star">
-              <img
-                src={starImage}
-                alt="image"
-                className="w-45 h-45"
-              />
+              <img src={starImage} alt="image" className="w-45 h-45" />
             </div>
           </div>
         </div>
@@ -67,7 +63,7 @@ const Banner = () => {
 
           <p className="max-w-full w-full md:max-w-128.5 text-base sm:leading-8 font-medium text-white">
             Buy $BIGTR now and be part of the next generation blockchain revolution.
-	Join the presale and influence the future of BigTrCoin.
+            Join the presale and influence the future of BigTrCoin.
           </p>
 
           <div className="mt-8 sm:mt-10 flex items-center gap-5 xl:gap-12 flex-wrap">
@@ -81,24 +77,13 @@ const Banner = () => {
               </span>
             </NavLink>
 
-            <div className="flex items-center gap-5 xl:gap-12 flex-wrap">
-              <div className="font-chakrapetch">
-                <h4 className="mb-0.5 uppercase text-base font-bold text-white-80">
-                  Listing Price
-                </h4>
-                <h3 className="uppercase text-[18px] sm:text-xl font-bold text-white">
-                  1 {tokenSymbol} = ${listingPrice}
-                </h3>
-              </div>
-
-              <div className="font-chakrapetch">
-                <h4 className="mb-0.5 uppercase text-base font-bold text-white-80">
-                  Listing Date
-                </h4>
-                <h3 className="uppercase text-[18px] sm:text-xl font-bold text-white">
-                  December 20, 2026
-                </h3>
-              </div>
+            <div className="font-chakrapetch">
+              <h4 className="mb-0.5 uppercase text-base font-bold text-white-80">
+                Listing Price
+              </h4>
+              <h3 className="uppercase text-[18px] sm:text-xl font-bold text-white">
+                1 {tokenSymbol} = {listingPrice} USDT
+              </h3>
             </div>
           </div>
         </div>

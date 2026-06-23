@@ -41,6 +41,9 @@ const TransactionsLatest = () => {
             </tr>
           </thead>
           <tbody>
+            {Data.length === 0 && (
+              <tr><td colSpan={3} className="py-6 text-center text-secondary-80 font-chakrapetch uppercase">No transactions yet</td></tr>
+            )}
             {Data?.slice(0, 6).map((item, i) => (
               <tr key={i} className="border-t border-t-secondary-12">
                 <td className="py-4 text-sm xs:text-[15px] 2xl:text-base font-medium text-secondary">

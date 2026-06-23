@@ -5,7 +5,6 @@ import { useAizonData } from "../../utils/AizonContext";
 import StatusImg1 from "../../assets/images/status/wallet.svg?react";
 import StatusImg2 from "../../assets/images/status/invested.svg?react";
 import StatusImg3 from "../../assets/images/status/launch.svg?react";
-import StatusImg4 from "../../assets/images/status/staked.svg?react";
 
 const StatusCard = () => {
   const {
@@ -13,13 +12,12 @@ const StatusCard = () => {
     userTokenBalance,
     currentPrice,
     listingPrice,
-    userStakeAmount,
   } = useAizonData();
 
   const StatusData = [
     {
-      title: "Total Balance",
-      value: "$" + userTokenBalance,
+      title: "Your BIGTR",
+      value: formatNumber(userTokenBalance),
       icon: StatusImg1,
     },
     {
@@ -28,14 +26,9 @@ const StatusCard = () => {
       icon: StatusImg2,
     },
     {
-      title: "Listing Price",
+      title: "Value at Listing",
       value: "$" + formatNumber(userTokenBalance * listingPrice),
       icon: StatusImg3,
-    },
-    {
-      title: "Your Staked",
-      value: "$" + formatNumber(Number(userStakeAmount)),
-      icon: StatusImg4,
     },
   ];
 

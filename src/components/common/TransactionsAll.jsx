@@ -38,6 +38,9 @@ const TransactionsAll = () => {
             </tr>
           </thead>
           <tbody>
+            {Data.length === 0 && (
+              <tr><td colSpan={6} className="py-6 text-center text-secondary-80 font-chakrapetch uppercase">No transactions yet</td></tr>
+            )}
             {Data?.map((item, i) => (
               <tr key={i} className="border-t border-t-secondary-12">
                 <td className="py-4 text-sm xs:text-[15px] 2xl:text-base uppercase font-medium text-secondary">

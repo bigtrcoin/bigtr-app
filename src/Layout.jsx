@@ -20,7 +20,7 @@ const Layout = ({ pageTitle, children }) => {
         {pageTitle ? (
           <title>{pageTitle}</title>
         ) : (
-          <title>Aizon - ICO Token Presale and Staking Tailwind Template</title>
+          <title>BigTrCoin Presale</title>
         )}
 
         {/* favicon included here  */}

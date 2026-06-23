@@ -85,7 +85,7 @@ const RioCalculate = () => {
       {/* title */}
       <div className="pt-5 md:pt-7 mb-4 sm:mb-5.5">
         <h2 className="aizon-title uppercase font-chakrapetch font-bold text-secondary">
-          Rio Calculate
+          ROI Calculate
         </h2>
       </div>
 
@@ -188,7 +188,7 @@ const RioCalculate = () => {
 
       <div className="text-center">
         <h2 className="uppercase font-chakrapetch font-bold text-[22px] xs:text-[24px] 2xl:text-[30px] text-secondary">
-          RIO: <span className="text-primary">{rioPercentage}%</span>
+          ROI: <span className="text-primary">{rioPercentage}%</span>
         </h2>
       </div>
     </div>

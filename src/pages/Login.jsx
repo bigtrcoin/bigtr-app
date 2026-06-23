@@ -1,12 +1,7 @@
 import React from "react";
-import { ConnectButton } from "thirdweb/react";
-import { useActiveAccount } from "thirdweb/react";
-import { createThirdwebClient } from "thirdweb";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { Navigate } from "react-router-dom";
-
-const client = createThirdwebClient({
-  clientId: "807215563adc5564b9e3ece0321aabac",
-});
+import { client, presaleChain } from "../web3/presale";
 
 const Login = () => {
   const account = useActiveAccount();
@@ -24,7 +19,7 @@ const Login = () => {
       <p style={{ color: "#ffffff" }} className="font-onest">
         Connect your wallet to access the presale panel
       </p>
-      <ConnectButton client={client} />
+      <ConnectButton client={client} chain={presaleChain} />
     </div>
   );
 };

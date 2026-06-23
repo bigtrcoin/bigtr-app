@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
 import { AizonContext } from "./AizonContext";
-import { useConnection, useBalance, useChainId, useSwitchChain } from "wagmi";
-import { formatUnits } from "viem";
-import { useAppKit } from "@reown/appkit/react";
-import { chainInfo, chainConfig } from "../contracts/chainConfig";
+import { useActiveAccount } from "thirdweb/react";
+import { chainInfo } from "../contracts/chainConfig";
+import { usePresale } from "../hooks/usePresale";
+import { STABLE_DECIMALS, TOKEN_DECIMALS } from "../web3/presale";
+
+const PRESALE_CAP = 1_190_000_000; // ön satışa sunulan toplam BIGTR
+// 1e18 ölçekli fiyatı okunabilir stringe çevir (5e14 -> "0.0005")
+const fmtPrice = (v) => {
+  if (!v) return "0";
+  const n = Number(v) / 10 ** STABLE_DECIMALS;
+  return String(Number(n.toFixed(8)));
+};
 
 import { TbMoon, TbSunLow } from "react-icons/tb";
+
+// Ön satış BNB Chain üzerinde olduğu için sabit BNB yapılandırması kullanılır.
+const ACTIVE = chainInfo[1]; // BNB
 
 const AizonContextProvider = ({ children }) => {
   const themeModes = [
@@ -52,16 +63,21 @@ const AizonContextProvider = ({ children }) => {
   }, [themeMode, themeColor]);
 
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
-  const { open } = useAppKit();
-  const chainId = useChainId();
+
+  // Cüzdan: thirdweb (tek kaynak)
+  const account = useActiveAccount();
+  const addressData = account?.address;
+  const isConnected = !!account;
+
   const ethChainId = chainInfo[0].chainId;
   const bnbChainId = chainInfo[1].chainId;
-  const [payTokenList, setPayTokenList] = useState(chainConfig(chainId).payTokens);
-  const [payTokenId, setPayTokenId] = useState(chainConfig(chainId).payTokens[0].id);
-  const [selectedImg, setSelectedImg] = useState(chainConfig(chainId).icon);
-  const [titleText, setTitleText] = useState(chainConfig(chainId).title);
+  const [payTokenList, setPayTokenList] = useState(ACTIVE.payTokens);
+  const [payTokenId, setPayTokenId] = useState(ACTIVE.payTokens[0].id);
+  const [selectedImg, setSelectedImg] = useState(ACTIVE.icon);
+  const [titleText, setTitleText] = useState(ACTIVE.title);
   const [IsActiveBuyOnEth, setIsActiveBuyOnEth] = useState(false);
   const [IsActiveBuyOnBnb, setIsActiveBuyOnBnb] = useState(true);
+  const switchChain = () => {}; // dropdown kaldırıldı; uyumluluk için no-op
 
   const formatNumber = (num) => {
     let absNum = Math.abs(num);
@@ -106,173 +122,101 @@ const AizonContextProvider = ({ children }) => {
     });
   };
 
-  // variables
-  const [userChainId, setUserChainId] = useState(chainConfig(chainId).chainId);
-  const [userBalance, setUserBalance] = useState("0");
-  const [userTokenBalance, setUserTokenBalance] = useState(0);
-  const [userPurchasedTokens, setUserPurchasedTokens] = useState(0);
-  const [userPurchasedBonusTokens, setUserPurchasedBonusTokens] = useState(0);
-  const [userReferredTokens, setUserReferredTokens] = useState(0);
-  const [userReferredPay, setUserReferredPay] = useState(0);
+  // --- Aşağıdaki ön satış değerleri şimdilik gösterim amaçlı sabittir;
+  // kontrat bağlandıktan sonra usePresale ile gerçek değerlere geçilecek. ---
+  const [userBalance] = useState("0");
+  const [userPurchasedTokens] = useState(0);
+  const [userPurchasedBonusTokens] = useState(0);
+  const [userReferredTokens] = useState(0);
+  const [userReferredPay] = useState(0);
 
-  // token
-  const [tokenAddress, setTokenAddress] = useState(
-    "0x6819be3120C602b64384Dc11e2178126c90AB606",
-  );
-  const [tokenName, setTokenName] = useState("BigTrCoin");
-  const [tokenSymbol, setTokenSymbol] = useState("$BIGTR");
-  const [tokenDecimals, setTokenDecimals] = useState(18);
-  const [tokenSubDecimals, setTokenSubDecimals] = useState(0);
-  const [userTokenAllowance, setUserTokenAllowance] = useState(0);
-  const [tokenTotalSupply, setTokenTotalSupply] = useState(690000000);
+  const [tokenAddress] = useState("0x6819be3120C602b64384Dc11e2178126c90AB606");
+  const [tokenName] = useState("BigTrCoin");
+  const [tokenSymbol] = useState("$BIGTR");
+  const [tokenDecimals] = useState(18);
+  const [tokenTotalSupply] = useState(2975000000);
 
-  // presale
-  const [maxStage, setMaxStage] = useState(5);
-  const [listingPrice, setListingPrice] = useState("1.00");
-  const [stageEnd, setStageEnd] = useState(1780483031);
-  const [stages, setStages] = useState([
-    "0.05",
-    "0.10",
-    "0.20",
-    "0.50",
-    "1.00",
+  const [maxStage] = useState(8);
+  const [listingPrice] = useState("0.096");
+  const [stageEnd] = useState(1780483031);
+  const [stages] = useState([
+    "0.0005", "0.001", "0.002", "0.003", "0.006", "0.012", "0.024", "0.048",
   ]);
-  const [currentStage, setCurrentStage] = useState(1);
-  const [currentPrice, setCurrentPrice] = useState("0.05");
-  const [nextStage, setNextStage] = useState(2);
-  const [nextPrice, setNextPrice] = useState("0.10");
-  const [tokenSold, setTokenSold] = useState(0);
-  const [raisedUsd, setRaisedUsd] = useState(3550000);
-  const [goalUsd, setGoalUsd] = useState(10000000);
-  const [tokenPercent, setTokenPercent] = useState(35.5);
-  const [purchaseBonus, setPurchaseBonus] = useState(5);
-  const [referralBonus, setReferralBonus] = useState(10);
-  const [referralBonusPay, setReferralBonusPay] = useState(5);
-  const [getBonusPayAmount, setGetBonusPayAmount] = useState(0);
-  const [getBonusToken, setGetBonusToken] = useState(0);
-  const [presaleStatus, setPresaleStatus] = useState(null);
-  const [usdExRate, setUsdExRate] = useState(0);
+
+  // --- Kontrat okumaları (usePresale zaten deploy yokken güvenli) ---
+  const {
+    configured,
+    price: cPrice,
+    stageIndex: cStageIndex,
+    totalRaised: cRaised,
+    totalTokensSold: cSold,
+    allocated: cAllocated,
+  } = usePresale();
+
+  const live = configured;
+  const stageIdx = live && cStageIndex !== undefined ? Number(cStageIndex) : 0;
+  const currentStage = Math.min(stageIdx + 1, 8);
+  const currentPrice = live && cPrice ? fmtPrice(cPrice) : "0.0005";
+  const nextPrice =
+    stageIdx + 1 < stages.length ? stages[stageIdx + 1] : listingPrice;
+  const raisedUsd = live && cRaised ? Number(cRaised) / 10 ** STABLE_DECIMALS : 0;
+  const tokenSold = live && cSold ? Number(cSold) / 10 ** TOKEN_DECIMALS : 0;
+  const tokenPercent = live
+    ? Math.min(100, Number(((tokenSold / PRESALE_CAP) * 100).toFixed(2)))
+    : 0;
+  const goalUsd = 7820000;
+  const userTokenBalance =
+    live && cAllocated ? Number(cAllocated) / 10 ** TOKEN_DECIMALS : 0;
+  const [purchaseBonus] = useState(0);
+  const [referralBonus] = useState(0);
+  const [referralBonusPay] = useState(0);
+  const [presaleStatus] = useState(null);
   const [paymentUsd, setPaymentUsd] = useState(0);
-  const [paymentPrice, setPaymentPrice] = useState(0);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState(0);
   const [listingPayAmount, setListingPayAmount] = useState(0);
   const [bonusAmount, setBonusAmount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
 
-  // paytokens
-  const [usdtDecimals, setUsdtDecimals] = useState(18);
-  const [usdtAllowance, setUsdtAllowance] = useState(0);
-  const [usdtBalance, setUsdtBalance] = useState(0);
-  const [usdcDecimals, setUsdcDecimals] = useState(18);
-  const [usdcAllowance, setUsdcAllowance] = useState(0);
-  const [usdcBalance, setUsdcBalance] = useState(0);
+  const [usdtBalance] = useState(0);
+  const [usdcBalance] = useState(0);
 
-  // stake
-  const [totalStaked, setTotalStaked] = useState(0);
-  const [totalReward, setTotalReward] = useState(0);
-  const [stakeLevelId, setStakeLevelId] = useState(0);
-  const [stakeLevels, setStakeLevels] = useState(null);
-  const [userStakeLevelId, setUserStakeLevelId] = useState(0);
-  const [userStakeAmount, setUserStakeAmount] = useState(0);
-  const [userStakeLockTime, setUserStakeLockTime] = useState(0);
-  const [userGetRewardAmount, setUserGetRewardAmount] = useState(0);
+  // ROI hesaplayıcı (RioCalculate) tarafından kullanılır
+  const handlePaymentInput = (e) => {
+    const _inputValue = e.target.value;
+    setBuyAmount(_inputValue);
+    setPaymentUsd(parseFloat(_inputValue * Number(currentPrice)) || 0);
+    setListingPayAmount(parseFloat(_inputValue * Number(listingPrice)) || 0);
+  };
 
-  const { switchChain } = useSwitchChain();
-  const { address: addressData, isConnected } = useConnection();
-  const { data: balanceData } = useBalance({ address: addressData });
+  // Eski BuyCard'a ait yardımcılar (artık yeni BuyCard kullanmıyor; uyumluluk için bırakıldı)
+  const handlePaymentInputBuy = (e) => setPaymentAmount(e.target.value);
+  const handlePayTokenInput = (e) => setPaymentAmount(e.target.value);
+
+  // Staking kaldırıldı; bağımlı bileşenler kırılmasın diye güvenli varsayılanlar
+  const totalStaked = 0;
+  const totalReward = 0;
+  const stakeLevelId = 0;
+  const stakeLevels = null;
+  const userStakeLevelId = 0;
+  const userStakeAmount = 0;
+  const userStakeLockTime = 0;
+  const userGetRewardAmount = 0;
+  const getBonusPayAmount = 0;
+  const getBonusToken = 0;
+  const userChainId = bnbChainId;
 
   const makeEmptyInputs = () => {
-    setPresaleStatus(null);
     setPaymentAmount("");
     setBuyAmount(0);
     setBonusAmount(0);
     setTotalAmount(0);
-    setPaymentPrice(0);
     setPaymentUsd(0);
-    setGetBonusPayAmount(0);
-    setGetBonusToken(0);
   };
 
   useEffect(() => {
     makeEmptyInputs();
   }, [addressData]);
-
-  useEffect(() => {
-    if (chainId) {
-      setUserChainId(chainId);
-      const config = chainConfig(chainId);
-      setTitleText(config.title);
-      setSelectedImg(config.icon);
-      setPayTokenList(config.payTokens);
-    }
-
-    if (balanceData) {
-      const _value = formatUnits(balanceData.value, balanceData.decimals);
-      const _totalDeciNum = _value.split(".")[1]?.length || 0;
-      const _fractionalPart = _value.split(".")[1] || "";
-      const _match = _fractionalPart.match(/^0+/);
-      const _matchZeros = _match ? _match[0].length : 0;
-      let _toFixedNum = 0;
-      if (_matchZeros > 0) {
-        _toFixedNum = _matchZeros + 1;
-      } else if (_totalDeciNum >= 1) {
-        _toFixedNum = 2;
-      } else {
-        _toFixedNum = 0;
-      }
-      const _balance = Number(_value).toFixed(_toFixedNum);
-      setUserBalance(`${_balance} ${balanceData.symbol}`);
-    }
-  }, [chainId]);
-
-  const handlePaymentInput = (e) => {
-    let _inputValue = e.target.value;
-    setBuyAmount(_inputValue);
-    const _payUsd = parseFloat(_inputValue * currentPrice);
-    setPaymentUsd(_payUsd);
-    const _payListing = parseFloat(_inputValue * listingPrice);
-    setListingPayAmount(_payListing);
-  };
-
-  const getNativeToUsd = async (_chainSymbol) => {
-    var requestOptions = { method: "GET", redirect: "follow" };
-    return fetch(
-      `https://api.coinbase.com/v2/exchange-rates?currency=${_chainSymbol}`,
-      requestOptions,
-    )
-      .then((response) => response.json())
-      .then((result) => result.data.rates.USD)
-      .catch((error) => ("error", error));
-  };
-
-  const handlePaymentInputBuy = async (e) => {
-    let _inputValue = e.target.value;
-    setPaymentAmount(_inputValue);
-    setBuyAmount(_inputValue);
-    const symbol = payTokenList?.[0]?.name || "ETH";
-    const usdRate = await getNativeToUsd(symbol);
-    const _payUsd = parseFloat(_inputValue * usdRate);
-    setPaymentUsd(_payUsd);
-    const _getToken = parseInt(_payUsd / currentPrice);
-    setBuyAmount(_getToken);
-    const _bonusAmount = parseInt((_getToken * purchaseBonus) / 100);
-    setBonusAmount(_bonusAmount);
-    const _totalAmount = _getToken + _bonusAmount;
-    setTotalAmount(_totalAmount);
-  };
-
-  const handlePayTokenInput = (e) => {
-    let _inputValue = e.target.value;
-    setPaymentAmount(_inputValue);
-    setPaymentUsd(_inputValue);
-    const _getToken = parseInt(_inputValue / currentPrice);
-    setBuyAmount(_getToken);
-    const _bonusAmount = parseInt((_getToken * purchaseBonus) / 100);
-    setBonusAmount(_bonusAmount);
-    const _totalAmount = _getToken + _bonusAmount;
-    setTotalAmount(_totalAmount);
-  };
 
   return (
     <AizonContext.Provider
@@ -286,7 +230,6 @@ const AizonContextProvider = ({ children }) => {
         colors,
         isSidebarVisible,
         setIsSidebarVisible,
-        open,
         formatTimestamp,
         formatTimestampDate,
         payTokenList,
@@ -349,6 +292,9 @@ const AizonContextProvider = ({ children }) => {
         userStakeAmount,
         userStakeLockTime,
         userGetRewardAmount,
+        getBonusPayAmount,
+        getBonusToken,
+        userChainId,
       }}
     >
       {children}

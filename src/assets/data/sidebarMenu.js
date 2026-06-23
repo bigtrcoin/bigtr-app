@@ -2,11 +2,8 @@ import {
   TbSmartHome,
   TbTrendingUp,
   TbWallet,
-  TbStack2,
   TbCrown,
   TbChartPie,
-  TbCalendarBolt,
-  TbPasswordUser,
   TbReceipt2,
 } from "react-icons/tb";
 
@@ -27,11 +24,6 @@ const sidebarMenu = [
     icon: TbWallet,
   },
   {
-    url: "/staking",
-    title: "Staking",
-    icon: TbStack2,
-  },
-  {
     url: "/leaderboard",
     title: "Leaderboard",
     icon: TbCrown,
@@ -40,16 +32,6 @@ const sidebarMenu = [
     url: "/tokenomics",
     title: "Tokenomics",
     icon: TbChartPie,
-  },
-  {
-    url: "/sale-calendar",
-    title: "Sale Calendar",
-    icon: TbCalendarBolt,
-  },
-  {
-    url: "/referral",
-    title: "Referral",
-    icon: TbPasswordUser,
   },
   {
     url: "/transactions",

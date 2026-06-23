@@ -46,6 +46,9 @@ const Leaderboard = () => {
               </tr>
             </thead>
             <tbody>
+              {Data.length === 0 && (
+                <tr><td colSpan={3} className="py-6 text-center text-secondary-80 font-chakrapetch uppercase">No participants yet</td></tr>
+              )}
               {Data?.slice(0, 5).map((item, i) => (
                 <tr key={i} className="border-t border-t-secondary-12">
                   <td className="w-[33%] relative py-4">
@@ -96,24 +99,19 @@ const Leaderboard = () => {
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
-        <table className="w-full">
-          <tbody>
-            <tr className="bg-surface flex items-center justify-between">
-              <td className="w-[66%] pl-5 md:pl-6.25 2xl:pl-10 py-4 uppercase text-sm xs:text-base font-medium text-secondary">
-                <span>
-                  Your Rank <span className="text-primary">#256</span> out of{" "}
-                  <span className="text-primary">#87855</span>
-                </span>
-              </td>
-              <td className="w-[33%] pr-5 md:pr-6.25 2xl:pr-10 py-4 text-right text-sm xs:text-base font-medium text-secondary-80">
-                <span className="text-secondary">4558</span>{" "}
-                <span>{tokenSymbol}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      {Data.length > 0 && (
+        <div className="w-full overflow-x-auto">
+          <table className="w-full">
+            <tbody>
+              <tr className="bg-surface flex items-center justify-between">
+                <td className="w-[66%] pl-5 md:pl-6.25 2xl:pl-10 py-4 uppercase text-sm xs:text-base font-medium text-secondary">
+                  <span>Leaderboard updates as the presale progresses</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
