@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { FaCircle } from "react-icons/fa6";
 import { useActiveAccount } from "thirdweb/react";
 import { usePresale } from "../../hooks/usePresale";
-import { PAY_TOKENS, STABLE_DECIMALS, TOKEN_DECIMALS } from "../../web3/presale";
+import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS } from "../../web3/presale";
 
 // 1e18 olcekli bigint -> okunabilir sayi
 const fromUnits = (v, dec = 18) => {
@@ -14,24 +14,37 @@ const BuyCard = () => {
   const account = useActiveAccount();
   const {
     price,
+    stageIndex,
+    stagesCount,
+    soldInStage,
+    currentStage,
+    remainingForSale,
     totalRaised,
-    totalTokensSold,
     allocated,
     quote,
     buy,
     isBuying,
   } = usePresale();
 
-  // sozlesme stablecoin bazli: yalnizca USDT / USDC (BNB Chain)
-  const [payToken, setPayToken] = useState(PAY_TOKENS[0]);
+  // Kontrat tek aktif odeme tokeni kabul eder (audit SDR duzeltmesi): USDT
   const [amount, setAmount] = useState("");
   const [tokensOut, setTokensOut] = useState(0n);
   const [status, setStatus] = useState("");
 
   const unitPrice = fromUnits(price, STABLE_DECIMALS); // 1 BIGTR = ? USD
   const raised = fromUnits(totalRaised, STABLE_DECIMALS);
-  const sold = fromUnits(totalTokensSold, TOKEN_DECIMALS);
   const myAllocation = fromUnits(allocated, TOKEN_DECIMALS);
+  const remaining = fromUnits(remainingForSale, TOKEN_DECIMALS);
+
+  // Aktif asama ilerlemesi
+  const stageNo = stageIndex !== undefined ? Number(stageIndex) + 1 : null;
+  const stageTotal = stagesCount !== undefined ? Number(stagesCount) : null;
+  const stageCap = currentStage ? fromUnits(currentStage[1], TOKEN_DECIMALS) : 0;
+  const stageSold = fromUnits(soldInStage, TOKEN_DECIMALS);
+  const stagePct =
+    stageCap > 0 ? Math.min(100, Number(((stageSold / stageCap) * 100).toFixed(2))) : 0;
+  const soldOut =
+    stageIndex !== undefined && stagesCount !== undefined && stageIndex >= stagesCount;
 
   // tutar degistikce kontrattan onizleme al (ekrandaki rakam kontratla birebir)
   useEffect(() => {
@@ -65,14 +78,24 @@ const BuyCard = () => {
     }
     try {
       setStatus("Confirm the approval and purchase in your wallet...");
-      await buy(payToken.address, amount);
+      await buy(PAY_TOKEN.address, amount);
       setStatus("Purchase successful. Your BIGTR allocation has been recorded.");
       setAmount("");
       setTokensOut(0n);
     } catch (e) {
-      setStatus("Transaction failed: " + (e?.message || "unknown error"));
+      const msg = e?.message || "unknown error";
+      // Kontrattaki slippage korumasi devreye girdiyse kullaniciya net anlat:
+      // parasi cekilmedi, sadece fiyat degisti.
+      if (msg.toLowerCase().includes("slippage")) {
+        setStatus(
+          "Price moved to the next stage while your transaction was pending. " +
+            "No funds were taken. Please review the updated quote and try again."
+        );
+      } else {
+        setStatus("Transaction failed: " + msg);
+      }
     }
-  }, [account, amount, payToken, buy]);
+  }, [account, amount, buy]);
 
   // Kredi karti: thirdweb Pay ile, musterinin thirdweb hesabi + Pay aktif olunca baglanir
   const handleCard = () => {
@@ -101,45 +124,59 @@ const BuyCard = () => {
       </div>
 
       <div className="px-5 md:px-6.25 2xl:px-10 pt-6 2xl:pt-7 pb-5 2xl:pb-10">
+        {/* Asama ilerleme cubugu */}
         <div className="mb-5 sm:mb-9">
-          <div className="flex items-center gap-4 flex-wrap justify-between">
+          <div className="flex items-center gap-4 flex-wrap justify-between mb-2">
+            <p className="font-chakrapetch uppercase text-base font-bold text-secondary">
+              {soldOut ? (
+                <span className="text-primary">Presale Sold Out</span>
+              ) : (
+                <>
+                  <span className="text-secondary-80">Stage:</span>{" "}
+                  {stageNo && stageTotal ? `${stageNo} / ${stageTotal}` : "—"}
+                </>
+              )}
+            </p>
             <p className="font-chakrapetch uppercase text-base font-bold text-secondary">
               <span className="text-secondary-80">Raised:</span>{" "}
               {raised.toLocaleString()} USD
             </p>
-            <p className="font-chakrapetch uppercase text-base font-bold text-secondary">
-              <span className="text-secondary-80">Sold:</span>{" "}
-              {sold.toLocaleString()} BIGTR
-            </p>
           </div>
+          {!soldOut && stageCap > 0 && (
+            <>
+              <div className="w-full h-3 rounded-full bg-secondary-8 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-700"
+                  style={{ width: `${stagePct}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <p className="font-chakrapetch text-sm text-secondary-80">
+                  {stageSold.toLocaleString()} / {stageCap.toLocaleString()} BIGTR in
+                  this stage ({stagePct}%)
+                </p>
+                <p className="font-chakrapetch text-sm text-secondary-80">
+                  Remaining total: {remaining.toLocaleString()} BIGTR
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Odeme tokeni secimi: USDT / USDC (BNB Chain) */}
+        {/* Odeme tokeni: kontrat ayni anda tek stablecoin kabul eder */}
         <div className="mb-5 sm:mb-9">
           <h4 className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
             Payment Method
           </h4>
-          <div className="grid grid-cols-2 gap-2 2xl:gap-3.75 max-w-xs">
-            {PAY_TOKENS.map((t) => (
-              <button
-                key={t.symbol}
-                onClick={() => setPayToken(t)}
-                className={`px-4 py-3 rounded-[12px] font-chakrapetch uppercase font-bold border-2 transition ${
-                  payToken.symbol === t.symbol
-                    ? "border-primary text-primary"
-                    : "border-secondary-8 text-secondary"
-                }`}
-              >
-                {t.symbol}
-              </button>
-            ))}
+          <div className="inline-flex px-4 py-3 rounded-[12px] font-chakrapetch uppercase font-bold border-2 border-primary text-primary">
+            {PAY_TOKEN.symbol} (BNB Chain)
           </div>
         </div>
 
         {/* Tutar */}
         <div className="mb-5 sm:mb-10">
           <label className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
-            Pay Amount ({payToken.symbol})
+            Pay Amount ({PAY_TOKEN.symbol})
           </label>
           <div className="relative">
             <input
@@ -152,7 +189,7 @@ const BuyCard = () => {
             />
             <div className="absolute top-1/2 right-4 sm:right-5 -translate-y-1/2 flex items-center gap-2">
               <span className="px-2.5 py-0.75 rounded-[10px] bg-secondary-12 font-chakrapetch uppercase text-base sm:text-lg font-bold text-secondary-50">
-                {payToken.symbol}
+                {PAY_TOKEN.symbol}
               </span>
             </div>
           </div>
@@ -176,21 +213,25 @@ const BuyCard = () => {
               </span>
             </div>
           </div>
+          <p className="mt-2 font-chakrapetch text-sm text-secondary-80">
+            Tokens are allocated on-chain now and distributed at listing according to
+            the 50% / 25% / 25% vesting schedule.
+          </p>
         </div>
 
-        {/* Buy Now -> gercek approve + buy */}
+        {/* Buy Now -> taze quote + slippage korumali approve + buy */}
         <div className="mb-5">
           <button
             onClick={handleBuy}
-            disabled={isBuying}
+            disabled={isBuying || soldOut}
             className="aizon-btn w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-primary font-chakrapetch uppercase text-[18px] leading-none font-bold text-btn-text disabled:opacity-60"
           >
             <span className="btn-inner">
               <span className="btn-normal-text">
-                {isBuying ? "Processing..." : "Buy Now"}
+                {soldOut ? "Sold Out" : isBuying ? "Processing..." : "Buy Now"}
               </span>
               <span className="btn-hover-text">
-                {isBuying ? "Processing..." : "Buy Now"}
+                {soldOut ? "Sold Out" : isBuying ? "Processing..." : "Buy Now"}
               </span>
             </span>
           </button>
