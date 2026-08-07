@@ -16,7 +16,7 @@ const fmtPrice = (v) => {
 import { TbMoon, TbSunLow } from "react-icons/tb";
 
 // Ön satış BNB Chain üzerinde olduğu için sabit BNB yapılandırması kullanılır.
-const ACTIVE = chainInfo[1]; // BNB
+const ACTIVE = chainInfo[0]; // BNB (tek zincir)
 
 const AizonContextProvider = ({ children }) => {
   const themeModes = [
@@ -70,7 +70,7 @@ const AizonContextProvider = ({ children }) => {
   const isConnected = !!account;
 
   const ethChainId = chainInfo[0].chainId;
-  const bnbChainId = chainInfo[1].chainId;
+  const bnbChainId = chainInfo[0].chainId;
   const [payTokenList, setPayTokenList] = useState(ACTIVE.payTokens);
   const [payTokenId, setPayTokenId] = useState(ACTIVE.payTokens[0].id);
   const [selectedImg, setSelectedImg] = useState(ACTIVE.icon);
