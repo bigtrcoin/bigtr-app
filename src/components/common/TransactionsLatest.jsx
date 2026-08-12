@@ -1,13 +1,14 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAizonData } from "../../utils/AizonContext";
-import Data from "../../assets/data/transactions";
+import usePurchases from "../../hooks/usePurchases";
 
 import { FaArrowRight } from "react-icons/fa6";
 import EthScanImg from "../../assets/images/chains/ethscan.svg?react";
 
 const TransactionsLatest = () => {
   const { tokenSymbol } = useAizonData();
+  const { transactions: Data } = usePurchases();
 
   return (
     <div className="h-full rounded-[15px] px-5 md:px-6.25 2xl:px-10 relative overflow-hidden bg-card">
