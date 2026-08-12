@@ -1,5 +1,5 @@
 import React from "react";
-import Data from "../../assets/data/leaderbords";
+import usePurchases from "../../hooks/usePurchases";
 import { useAizonData } from "../../utils/AizonContext";
 
 import BgImg from "../../assets/images/bg/bg-leaderboard.svg?react";
@@ -11,6 +11,7 @@ import Rank4Img from "../../assets/images/icons/rank4.svg?react";
 
 const LeaderboardAll = () => {
   const { themeMode, tokenSymbol } = useAizonData();
+  const { leaderboard: Data } = usePurchases();
 
   return (
     <div
