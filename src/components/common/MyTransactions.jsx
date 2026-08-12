@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { useAizonData } from "../../utils/AizonContext";
-import Data from "../../assets/data/myTransactions";
+import usePurchases from "../../hooks/usePurchases";
+import { useAccount } from "wagmi";
 
 import EthScanImg from "../../assets/images/chains/ethscan.svg?react";
 import { FaArrowRight } from "react-icons/fa6";
 
 const MyTransactions = () => {
   const { tokenSymbol } = useAizonData();
+  const { address } = useAccount();
+  const { myTransactions } = usePurchases();
+  const Data = myTransactions(address);
 
   return (
     <div className="rounded-[15px] overflow-hidden mb-6.25 relative bg-card">
@@ -67,12 +71,7 @@ const MyTransactions = () => {
                 </td>
 
                 <td className="py-4 px-4 text-base font-medium text-[#30EF70] text-nowrap">
-                  {item.status == "completed" && (
-                    <span className="capitalize">Completed</span>
-                  )}
-                  {item.status == "failed" && (
-                    <span className="capitalize text-danger">Failed</span>
-                  )}
+                  <span className="capitalize">{item.status}</span>
                 </td>
 
                 <td className="py-4 text-base font-medium text-secondary-80 text-nowrap">
