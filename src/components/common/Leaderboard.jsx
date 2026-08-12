@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAizonData } from "../../utils/AizonContext";
-import Data from "../../assets/data/leaderbords";
+import usePurchases from "../../hooks/usePurchases";
 
 import Rank1Img from "../../assets/images/icons/rank1.svg?react";
 import Rank2Img from "../../assets/images/icons/rank2.svg?react";
@@ -10,6 +10,7 @@ import Rank4Img from "../../assets/images/icons/rank4.svg?react";
 
 const Leaderboard = () => {
   const { tokenSymbol } = useAizonData();
+  const { leaderboard: Data } = usePurchases();
 
   return (
     <div className="h-full rounded-[15px] relative overflow-hidden bg-card flex flex-col justify-between">
