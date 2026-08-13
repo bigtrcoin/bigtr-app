@@ -30,7 +30,7 @@ async function viaInsight(clientId) {
   for (let page = 0; page < 20; page++) {
     const url = `https://insight.thirdweb.com/v1/events/${PRESALE}` +
       `?chain=56&limit=500&page=${page}`;
-    const r = await fetch(url, { headers: { "x-client-id": clientId } });
+    const r = await fetch(url, { headers: { "x-client-id": clientId, "Origin": "https://app.bigtrcoin.com", "Referer": "https://app.bigtrcoin.com/" } });
     if (!r.ok) throw new Error("insight http " + r.status);
     const j = await r.json();
     const rows = j.data || [];
