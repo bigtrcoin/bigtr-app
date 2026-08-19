@@ -5,7 +5,7 @@ import StakingSection from "./../components/sections/StakingSection";
 
 const Staking = () => {
   return (
-    <Layout pageTitle="Aizon - Staking">
+    <Layout pageTitle="BigTrCoin - Staking">
       <ScrollAnimate>
         <StakingSection />
       </ScrollAnimate>
