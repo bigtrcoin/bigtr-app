@@ -1,21 +1,21 @@
 const howToBuy = [
   {
     number: "01",
-    title: "Connect your wallet",
+    title: "Get USDT on BNB Chain",
     description:
-      "Connect your wallet securely using MetaMask or Trust Wallet to start your purchase",
+      "Buy USDT on any major exchange (Binance, OKX, Bybit, etc.) and withdraw it to your wallet using the BNB Smart Chain (BEP-20) network. Keep a small amount of BNB for gas.",
   },
   {
     number: "02",
-    title: "Chose payment method",
+    title: "Connect your wallet",
     description:
-      "Select your perferred payment option, such as ETH, USDT, or other currency.",
+      "Connect MetaMask or Trust Wallet on BNB Smart Chain. Your address is never shared and no sign-up is required.",
   },
   {
     number: "03",
-    title: "Confirm transaction",
+    title: "Confirm & receive allocation",
     description:
-      "Review details, confirm the purchase, and complete your token transaction semalessly",
+      "Enter the amount, approve USDT and confirm the purchase. Your BIGTR allocation is recorded on-chain instantly and distributed at listing (50% / 25% / 25%).",
   },
 ];
 
