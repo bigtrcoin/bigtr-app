@@ -72,7 +72,8 @@ const TokenInfo = ({ variant }) => {
                 className="text-right text-[15px] 2xl:text-base font-semibold text-secondary hover:text-primary"
               >
                 {tokenAddress.slice(0, 4) + "..." + tokenAddress.slice(-4)}
-              </a>            )}
+              </a>
+            )}
           </div>
         </li>
 
