@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useAizonData } from "../../utils/AizonContext";
 import usePurchases from "../../hooks/usePurchases";
-import { useAccount } from "wagmi";
+import { useActiveAccount } from "thirdweb/react";
 
 import EthScanImg from "../../assets/images/chains/ethscan.svg?react";
 import { FaArrowRight } from "react-icons/fa6";
 
 const MyTransactions = () => {
   const { tokenSymbol } = useAizonData();
-  const { address } = useAccount();
+  const account = useActiveAccount();
+  const address = account?.address;
   const { myTransactions } = usePurchases();
   const Data = myTransactions(address);
 
