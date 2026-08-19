@@ -144,7 +144,7 @@ const Sidebar = () => {
             <div className="w-37.5 h-0.5 bg-linear-to-r from-secondary-20 to-transparent"></div>
             <div
               className={`aizon-scroll flex flex-col justify-between ${
-                isSidebarVisible ? "h-[calc(100%-72px)]" : "h-[calc(100%-80px)]"
+                isSidebarVisible ? "h-[calc(100%-107px)]" : "h-[calc(100%-80px)]"
               }`}
               data-lenis-prevent
             >
