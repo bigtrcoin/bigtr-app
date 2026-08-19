@@ -237,16 +237,17 @@ const BuyCard = () => {
           </button>
         </div>
 
-        {/* Kredi karti (thirdweb Pay) */}
-        <div className="mb-4">
-          <button
-            onClick={handleCard}
-            className="w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-secondary-15 font-chakrapetch uppercase text-[18px] leading-none font-bold text-secondary hover:opacity-80 transition cursor-pointer text-center"
-          >
-            Pay with Credit Card
-          </button>
-        </div>
-
+        {/* Kredi karti (thirdweb Pay) - aktivasyon onayina kadar gizli */}
+        {import.meta.env.VITE_CARD_PAY_ENABLED === "true" && (
+          <div className="mb-4">
+            <button
+              onClick={handleCard}
+              className="w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-secondary-15 font-chakrapetch uppercase text-[18px] leading-none font-bold text-secondary hover:opacity-80 transition cursor-pointer text-center"
+            >
+              Pay with Credit Card
+            </button>
+          </div>
+        )}
         {status && (
           <p className="font-chakrapetch text-sm text-secondary-80 mt-2">{status}</p>
         )}
