@@ -9,13 +9,13 @@ const howToBuy = [
     number: "02",
     title: "Connect your wallet",
     description:
-      "Connect MetaMask or Trust Wallet on BNB Smart Chain. Your address is never shared and no sign-up is required.",
+      "Connect MetaMask, Trust Wallet or any WalletConnect wallet on BNB Smart Chain, or sign in with your email. Your address is never shared and no sign-up is required.",
   },
   {
     number: "03",
     title: "Confirm & receive allocation",
     description:
-      "Enter the amount, approve USDT and confirm the purchase. Your BIGTR allocation is recorded on-chain instantly and distributed at listing (50% / 25% / 25%).",
+      "Enter how much USDT you want to spend, approve USDT and confirm the purchase. Your BIGTR allocation is recorded on-chain instantly and distributed at listing: 50% at TGE, 25% after 30 days and 25% after 60 days.",
   },
 ];
 
