@@ -130,7 +130,7 @@ const AizonContextProvider = ({ children }) => {
   const [userReferredTokens] = useState(0);
   const [userReferredPay] = useState(0);
 
-  const [tokenAddress] = useState("0x6819be3120C602b64384Dc11e2178126c90AB606");
+  const [tokenAddress] = useState(import.meta.env.VITE_PRESALE_ADDRESS || "");
   const [tokenName] = useState("BigTrCoin");
   const [tokenSymbol] = useState("$BIGTR");
   const [tokenDecimals] = useState(18);
