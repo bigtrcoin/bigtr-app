@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import { FaCircle } from "react-icons/fa6";
 import { useActiveAccount } from "thirdweb/react";
 import { usePresale } from "../../hooks/usePresale";
-import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS } from "../../web3/presale";
+import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS, client, presaleChain } from "../../web3/presale";
+import { BuyWidget } from "thirdweb/react";
 
 // 1e18 olcekli bigint -> okunabilir sayi
 const fromUnits = (v, dec = 18) => {
@@ -97,11 +98,15 @@ const BuyCard = () => {
     }
   }, [account, amount, buy]);
 
-  // Kredi karti: thirdweb Pay ile, musterinin thirdweb hesabi + Pay aktif olunca baglanir
+  // Kredi karti: thirdweb BuyWidget -> kullanici KENDI cuzdanina USDT alir, sonra normal Buy Now.
+  // (Kontrat hicbir zaman kart saglayicisi tarafindan cagrilmaz; alokasyon daima alicinin cuzdanina yazilir.)
+  const [cardOpen, setCardOpen] = useState(false);
   const handleCard = () => {
-    setStatus(
-      "Credit card payment will be enabled once Pay is activated on the thirdweb account."
-    );
+    if (!account) {
+      setStatus("Connect your wallet first - the USDT you buy will be sent to it.");
+      return;
+    }
+    setCardOpen(true);
   };
 
   return (
@@ -237,7 +242,7 @@ const BuyCard = () => {
           </button>
         </div>
 
-        {/* Kredi karti (thirdweb Pay) - aktivasyon onayina kadar gizli */}
+        {/* Kredi karti (thirdweb Pay) - VITE_CARD_PAY_ENABLED=true ise gorunur */}
         {import.meta.env.VITE_CARD_PAY_ENABLED === "true" && (
           <div className="mb-4">
             <button
@@ -246,8 +251,42 @@ const BuyCard = () => {
             >
               Pay with Credit Card
             </button>
+            <p className="mt-2 font-chakrapetch text-xs text-secondary-70 text-center">
+              Buy USDT with your card into your own wallet, then click Buy Now.
+            </p>
           </div>
         )}
+
+        {cardOpen && account && (
+          <div
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4"
+            onClick={() => setCardOpen(false)}
+          >
+            <div onClick={(e) => e.stopPropagation()} className="w-full max-w-[440px]">
+              <BuyWidget
+                client={client}
+                chain={presaleChain}
+                tokenAddress={PAY_TOKEN.address}
+                amount={amount && Number(amount) > 0 ? String(amount) : "20"}
+                receiverAddress={account.address}
+                paymentMethods={["card"]}
+                title="Buy USDT with card"
+                theme="dark"
+                showThirdwebBranding={false}
+                onSuccess={() => {
+                  setCardOpen(false);
+                  setStatus("USDT received in your wallet. Now click Buy Now to complete your BIGTR purchase.");
+                }}
+                onCancel={() => setCardOpen(false)}
+                onError={(e) => {
+                  setCardOpen(false);
+                  setStatus("Card purchase failed: " + (e?.message || "unknown error"));
+                }}
+              />
+            </div>
+          </div>
+        )}
+
         {status && (
           <p className="font-chakrapetch text-sm text-secondary-80 mt-2">{status}</p>
         )}
