@@ -126,20 +126,20 @@ const Sidebar = () => {
           <div className="sidebar-bg h-full bg relative overflow-hidden rounded-[15px] backdrop-blur-[10px]">
             {/* header logo - desktop */}
             <div className="hidden xl:flex p-3.75">
-              <NavLink
-                to="/"
+              <a
+                href="https://bigtrcoin.com/"
                 className={`transition-all duration-300 ${
-                  isSidebarVisible ? "w-42.5 h-12.5" : "w-12.5 h-12.5"
+                  isSidebarVisible ? "w-42.5 h-21.25" : "w-12.5 h-12.5"
                 }`}
               >
                 <img src={LogoImg} alt="BigTrCoin" className="w-full h-full object-contain" />
-              </NavLink>
+              </a>
             </div>
             {/* header logo - mobile */}
             <div className="flex xl:hidden p-3.75">
-              <NavLink to="/" className="transition-all duration-300 w-13.75 h-13.75 block">
+              <a href="https://bigtrcoin.com/" className="transition-all duration-300 w-25 h-12.5 block">
                 <img src={LogoImg} alt="BigTrCoin" className="w-full h-full object-contain" />
-              </NavLink>
+              </a>
             </div>
             <div className="w-37.5 h-0.5 bg-linear-to-r from-secondary-20 to-transparent"></div>
             <div
