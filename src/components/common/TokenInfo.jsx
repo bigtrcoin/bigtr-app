@@ -53,7 +53,7 @@ const TokenInfo = ({ variant }) => {
         </li>
         <li className="pt-3.5 flex items-center gap-3 justify-between">
           <p className="capitalize text-[15px] 2xl:text-base font-medium text-secondary-80">
-            Address
+            Presale Contract
           </p>
 
           <div className="flex items-center gap-1">
@@ -65,17 +65,21 @@ const TokenInfo = ({ variant }) => {
             </button>
 
             {tokenAddress && (
-              <h4 className="text-right text-[15px] 2xl:text-base font-semibold text-secondary">
+              <a
+                href={"https://bscscan.com/address/" + tokenAddress}
+                target="_blank"
+                rel="noreferrer"
+                className="text-right text-[15px] 2xl:text-base font-semibold text-secondary hover:text-primary"
+              >
                 {tokenAddress.slice(0, 4) + "..." + tokenAddress.slice(-4)}
-              </h4>
-            )}
+              </a>            )}
           </div>
         </li>
 
         {variant == "buy" && (
           <li className="pt-2 text-right">
             <p className="text-xs font-medium text-secondary-70">
-              Don’t pay directly to this address*
+              Audited by Cyberscope • Buy only through this app*
             </p>
           </li>
         )}
