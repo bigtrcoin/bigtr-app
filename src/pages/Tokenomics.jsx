@@ -5,7 +5,7 @@ import TokenomicsSection from "../components/sections/Tokenomics";
 
 const Tokenomics = () => {
   return (
-    <Layout pageTitle="Aizon - Tokenomics">
+    <Layout pageTitle="BigTrCoin - Tokenomics">
       <ScrollAnimate>
         <TokenomicsSection />
       </ScrollAnimate>
