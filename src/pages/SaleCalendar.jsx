@@ -5,7 +5,7 @@ import ScrollAnimate from "../components/layouts/ScrollAnimate";
 
 const SaleCalendar = () => {
   return (
-    <Layout pageTitle="Aizon - Sale Calendar">
+    <Layout pageTitle="BigTrCoin - Sale Calendar">
       <ScrollAnimate>
         <Phase />
       </ScrollAnimate>
