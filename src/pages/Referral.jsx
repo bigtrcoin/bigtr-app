@@ -5,7 +5,7 @@ import ScrollAnimate from "./../components/layouts/ScrollAnimate";
 
 const Referral = () => {
   return (
-    <Layout pageTitle="Aizon - Referral">
+    <Layout pageTitle="BigTrCoin - Referral">
       {/* referral section  */}
       <ScrollAnimate>
         <ReferralSection />
