@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { FaCircle } from "react-icons/fa6";
 import { useActiveAccount } from "thirdweb/react";
 import { usePresale } from "../../hooks/usePresale";
@@ -286,7 +287,7 @@ const BuyCard = () => {
           </div>
         )}
 
-        {cardOpen && account && (
+        {cardOpen && account && createPortal(
           <div
             className="fixed inset-0 z-[1000] flex items-start md:items-center justify-center bg-black p-4 pt-6 md:pt-4 overflow-y-auto"
             onClick={() => setCardOpen(false)}
@@ -321,7 +322,7 @@ const BuyCard = () => {
               </button>
             </div>
           </div>
-        )}
+        , document.body)}
 
         {status && (
           <p className="font-chakrapetch text-sm text-secondary-80 mt-2">{status}</p>
