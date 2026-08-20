@@ -1,5 +1,4 @@
 import TelegramImg from '../images/icons/telegram.svg?react'
-import DiscordImg from '../images/icons/discord.svg?react'
 import XhandleImg from '../images/icons/xhandle.svg?react'
 
 const socialLinks = [
@@ -9,14 +8,9 @@ const socialLinks = [
     url: "#",
   },
   {
-    title: "discord",
-    icon: DiscordImg,
-    url: "#",
-  },
-  {
     title: "xhandle",
     icon: XhandleImg,
-    url: "#",
+    url: "https://x.com/bigtrcoin",
   },
 ];
 
