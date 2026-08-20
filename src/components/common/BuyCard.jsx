@@ -4,6 +4,7 @@ import { useActiveAccount } from "thirdweb/react";
 import { usePresale } from "../../hooks/usePresale";
 import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS, client, presaleChain } from "../../web3/presale";
 import { BuyWidget } from "thirdweb/react";
+import { Bridge, toUnits } from "thirdweb";
 
 // 1e18 olcekli bigint -> okunabilir sayi
 const fromUnits = (v, dec = 18) => {
@@ -107,6 +108,34 @@ const BuyCard = () => {
       return;
     }
     setCardOpen(true);
+  };
+
+  // Yedek kart yolu: thirdweb Bridge uzerinden dogrudan Transak oturumu ac.
+  // Widgettaki saglayicilar (Coinbase/Ramp/Stripe) bolgeyi desteklemezse kullanilir.
+  const [transakBusy, setTransakBusy] = useState(false);
+  const handleTransak = async () => {
+    if (!account) {
+      setStatus("Connect your wallet first - the USDT you buy will be sent to it.");
+      return;
+    }
+    try {
+      setTransakBusy(true);
+      const amt = amount && Number(amount) > 0 ? String(amount) : "20";
+      const session = await Bridge.Onramp.prepare({
+        client,
+        onramp: "transak",
+        chainId: presaleChain.id,
+        tokenAddress: PAY_TOKEN.address,
+        amount: toUnits(amt, STABLE_DECIMALS),
+        receiver: account.address,
+      });
+      window.open(session.link, "_blank", "noopener");
+      setStatus("Transak opened in a new tab. Complete the purchase there; USDT will arrive in your wallet.");
+    } catch (e) {
+      setStatus("Transak is unavailable for this amount or region: " + ((e && e.message) || "unknown error"));
+    } finally {
+      setTransakBusy(false);
+    }
   };
 
   return (
@@ -283,6 +312,13 @@ const BuyCard = () => {
                   setStatus("Card purchase failed: " + (e?.message || "unknown error"));
                 }}
               />
+              <button
+                onClick={handleTransak}
+                disabled={transakBusy}
+                className="mt-3 w-full rounded-[12px] bg-white/10 hover:bg-white/20 disabled:opacity-50 py-3 text-center text-[13px] font-chakrapetch uppercase text-white transition"
+              >
+                {transakBusy ? "Opening Transak..." : "Provider not available? Pay with Transak"}
+              </button>
             </div>
           </div>
         )}
