@@ -288,10 +288,10 @@ const BuyCard = () => {
 
         {cardOpen && account && (
           <div
-            className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4"
+            className="fixed inset-0 z-[1000] flex items-start md:items-center justify-center bg-black p-4 pt-6 md:pt-4 overflow-y-auto"
             onClick={() => setCardOpen(false)}
           >
-            <div onClick={(e) => e.stopPropagation()} className="w-full max-w-[440px]">
+            <div onClick={(e) => e.stopPropagation()} className="w-full max-w-[440px] my-auto">
               <BuyWidget
                 client={client}
                 chain={presaleChain}
