@@ -46,7 +46,7 @@ function useReadIfConfigured(method, params) {
 
 export function usePresale() {
     const account = useActiveAccount();
-    const { mutateAsync: sendTx, isPending } = useSendTransaction();
+    const { mutateAsync: sendTx, isPending } = useSendTransaction({ payModal: false });
 
   const { data: price } = useReadIfConfigured("function currentPrice() view returns (uint256)");
     const { data: stageIndex } = useReadIfConfigured("function currentStageIndex() view returns (uint256)");
