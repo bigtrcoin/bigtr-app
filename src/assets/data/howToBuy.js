@@ -3,7 +3,7 @@ const howToBuy = [
     number: "01",
     title: "Get USDT on BNB Chain",
     description:
-      "Buy USDT on any major exchange (Binance, OKX, Bybit, etc.) and withdraw it to your wallet using the BNB Smart Chain (BEP-20) network. Keep a small amount of BNB for gas.",
+      "Easiest way - buy by CARD inside your wallet app: in Trust Wallet tap Buy, choose USDT on BNB Smart Chain (BEP-20), pay with your card, and USDT lands in your own wallet in minutes. Or buy USDT on any major exchange (Binance, OKX, Bybit) and withdraw it via the BNB Smart Chain (BEP-20) network. Either way, keep a small amount of BNB for gas.",
   },
   {
     number: "02",
