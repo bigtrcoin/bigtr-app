@@ -8,7 +8,7 @@ import ThemeSwitcher from "./ThemeSwitcher";
 
 import { RiMenu3Fill } from "react-icons/ri";
 import { TbSettings } from "react-icons/tb";
-import HeaderSmallLogo from "../../assets/images/logo-small3.svg?react";
+
 
 const Header = () => {
   const { themeMode, isSidebarVisible, maxStage, currentStage } = useAizonData();
@@ -31,9 +31,9 @@ const Header = () => {
             <div className="w-full flex gap-3 justify-between">
               <div className="h-12.5 flex items-start xl:items-end gap-5 sm:gap-6 2xl:gap-10">
                 <div className="flex md:hidden">
-                  <NavLink to="/" className="w-13.75 h-13.75">
-                    <HeaderSmallLogo className="w-full h-full" />
-                  </NavLink>
+                  <a href="https://bigtrcoin.com/" className="block w-27 h-12.5">
+                    <img src="/logo.png" alt="BigTrCoin" className="w-full h-full object-contain" />
+                  </a>
                 </div>
                 <div className="hidden md:pt-px header-text sm:flex items-start xl:gap-8 2xl:gap-10">
                   <h2 className="md:pt-px hidden md:block uppercase font-chakrapetch text-2xl xl:text-[28px] 2xl:text-3xl leading-8 font-bold text-secondary">
