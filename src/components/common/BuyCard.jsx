@@ -276,13 +276,14 @@ const BuyCard = () => {
         {import.meta.env.VITE_CARD_PAY_ENABLED === "true" && (
           <div className="mb-4">
             <button
-              onClick={handleCard}
-              className="w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-secondary-15 font-chakrapetch uppercase text-[18px] leading-none font-bold text-secondary hover:opacity-80 transition cursor-pointer text-center"
+              disabled
+              className="w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-secondary-15 font-chakrapetch uppercase text-[18px] leading-none font-bold text-secondary opacity-60 cursor-not-allowed text-center"
             >
-              Pay with Credit Card
+              Pay with Credit Card{" "}
+              <span className="ml-2 inline-block align-middle rounded-full bg-primary px-2.5 py-1 text-[11px] leading-none font-bold text-btn-text">Coming Soon</span>
             </button>
             <p className="mt-2 font-chakrapetch text-xs text-secondary-70 text-center">
-              Buy USDT with your card into your own wallet, then click Buy Now.
+              Card payments are coming soon. You can buy with USDT now.
             </p>
           </div>
         )}
