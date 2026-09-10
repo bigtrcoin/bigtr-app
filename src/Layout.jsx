@@ -24,9 +24,9 @@ const Layout = ({ pageTitle, children }) => {
         )}
 
         {/* favicon included here  */}
-        <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon-32.png" type="image/png" />
         {/* apple touch icon included here */}
-        <link rel="apple-touch-icon" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </Helmet>
 
       <div className="relative">

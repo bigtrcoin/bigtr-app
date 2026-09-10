@@ -1,15 +1,20 @@
 // api/purchases.js
-// BigTrPresale "Purchased" olaylarini okuyup normalize JSON dondurur.
-// Kaynak oncelik sirasi:
-//   1) thirdweb Insight (indeksli, aralik derdi yok)  - VITE_THIRDWEB_CLIENT_ID
-//   2) Etherscan V2 / BscScan API                     - BSCSCAN_API_KEY (varsa)
-//   3) Ham RPC parcali tarama                          - BSC_RPC_URL (son care)
-// Yanit 60 sn CDN onbellegiyle servis edilir.
+// Reads BigTrPresale "Purchased" events and returns normalized JSON.
+// NOTE: the app now reads Insight directly from the browser (usePurchases.js),
+// because the domain-restricted client ID does not authenticate server-side.
+// This endpoint remains as a fallback and works fully once THIRDWEB_SECRET_KEY
+// (preferred) or BSCSCAN_API_KEY is set in Vercel.
+// Source priority:
+//   1) thirdweb Insight (indexed)      - THIRDWEB_SECRET_KEY (or client ID, browser-only)
+//   2) Etherscan V2 / BscScan API      - BSCSCAN_API_KEY (if present)
+//   3) Raw chunked RPC scan            - BSC_RPC_URL (last resort; public RPCs
+//      cap ranges hard, so this rarely covers the full history)
+// Response is served with a 60 s CDN cache.
 
 const PRESALE = (process.env.VITE_PRESALE_ADDRESS || "0x9d123D69300F2230d3D5eD54E1f3F9c457d54946");
 const DEPLOY_BLOCK = parseInt(process.env.PRESALE_DEPLOY_BLOCK || "115495998", 10);
 const TOPIC0 = "0xd67ebb720e4f9789f32f7cb2c71ad8e5bf9e6aa4793028ee0bad71ecb43db4ae"; // Purchased(...)
-const RPC = process.env.BSC_RPC_URL || "https://bsc-rpc.publicnode.com";
+const RPC = process.env.BSC_RPC_URL || "https://bsc-dataseed.bnbchain.org";
 
 const toNum = (hex) => Number(BigInt(hex)) / 1e18;
 
@@ -25,12 +30,21 @@ function parseData(dataHex, topics) {
 }
 
 // --- 1) thirdweb Insight ---
-async function viaInsight(clientId) {
+// Insight rejects unbounded queries ("query too broad"): the block and topic
+// filters are mandatory. Auth: x-secret-key works anywhere; x-client-id only
+// from an allowlisted browser origin.
+async function viaInsight(clientId, secretKey) {
+  const headers = secretKey
+    ? { "x-secret-key": secretKey }
+    : { "x-client-id": clientId };
   const out = [];
   for (let page = 0; page < 20; page++) {
     const url = `https://insight.thirdweb.com/v1/events/${PRESALE}` +
-      `?chain=56&limit=500&page=${page}`;
-    const r = await fetch(url, { headers: { "x-client-id": clientId, "Origin": "https://app.bigtrcoin.com", "Referer": "https://app.bigtrcoin.com/" } });
+      `?chain=56&limit=500&page=${page}` +
+      `&filter_block_number_gte=${DEPLOY_BLOCK}` +
+      `&filter_topic_0=${TOPIC0}` +
+      `&sort_by=block_number&sort_order=desc`;
+    const r = await fetch(url, { headers });
     if (!r.ok) throw new Error("insight http " + r.status);
     const j = await r.json();
     const rows = j.data || [];
@@ -73,7 +87,7 @@ async function viaEtherscan(key) {
   return out;
 }
 
-// --- 3) Ham RPC (son care) ---
+// --- 3) Raw RPC (last resort) ---
 async function rpcCall(method, params) {
   const r = await fetch(RPC, {
     method: "POST",
@@ -88,7 +102,10 @@ async function rpcCall(method, params) {
 async function viaRpc() {
   const latest = parseInt(await rpcCall("eth_blockNumber", []), 16);
   const logs = [];
-  const STEP = 9500;
+  const STEP = 4500; // public BSC nodes cap eth_getLogs around 5k blocks
+  // A full-history scan needs (latest-deploy)/STEP requests; past ~200 chunks
+  // it cannot finish inside the serverless time budget, so give up early.
+  if ((latest - DEPLOY_BLOCK) / STEP > 200) return [];
   for (let from = DEPLOY_BLOCK; from <= latest; from += STEP) {
     const to = Math.min(from + STEP - 1, latest);
     try {
@@ -106,7 +123,7 @@ async function viaRpc() {
           ts: null,
         });
       }
-    } catch (e) { /* parca hatasi yut */ }
+    } catch (e) { /* swallow chunk errors */ }
   }
   return logs;
 }
@@ -114,23 +131,24 @@ async function viaRpc() {
 export default async function handler(req, res) {
   try {
     let purchases = [];
-    let kaynak = "yok";
+    let source = "none";
     const cid = process.env.VITE_THIRDWEB_CLIENT_ID;
+    const secret = process.env.THIRDWEB_SECRET_KEY;
     const key = process.env.BSCSCAN_API_KEY;
 
-    if (cid && cid !== "MISSING_CLIENT_ID") {
-      try { purchases = await viaInsight(cid); kaynak = "insight"; } catch (e) { /* dusen kaynak */ }
+    if (secret || (cid && cid !== "MISSING_CLIENT_ID")) {
+      try { purchases = await viaInsight(cid, secret); source = "insight"; } catch (e) { /* source down */ }
     }
     if (purchases.length === 0 && key) {
-      try { const r = await viaEtherscan(key); if (r.length) { purchases = r; kaynak = "etherscan"; } } catch (e) { /* dusen */ }
+      try { const r = await viaEtherscan(key); if (r.length) { purchases = r; source = "etherscan"; } } catch (e) { /* down */ }
     }
-    if (purchases.length === 0) {
-      try { const r = await viaRpc(); if (r.length) { purchases = r; kaynak = "rpc"; } } catch (e) { /* dusen */ }
+    if (purchases.length === 0 && source === "none") {
+      try { const r = await viaRpc(); if (r.length) { purchases = r; source = "rpc"; } } catch (e) { /* down */ }
     }
 
     purchases.sort((a, b) => b.block - a.block);
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
-    res.status(200).json({ updatedAt: Date.now(), source: kaynak, count: purchases.length, purchases });
+    res.status(200).json({ updatedAt: Date.now(), source, count: purchases.length, purchases });
   } catch (e) {
     res.status(500).json({ error: String(e.message || e) });
   }

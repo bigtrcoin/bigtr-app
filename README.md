@@ -1,16 +1,21 @@
-# React + Vite
+# bigtr-app
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Presale dApp for BigTrCoin (BIGTR) — [app.bigtrcoin.com](https://app.bigtrcoin.com)
 
-Currently, two official plugins are available:
+React + Vite + Tailwind CSS single-page app on BNB Smart Chain. Wallet
+connection and contract calls go through the thirdweb SDK; purchases are made
+in USDT (BEP-20) via the audited presale contract.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Development
 
-## React Compiler
+```bash
+npm install
+npm run dev      # local dev server (Vite)
+npm run build    # production build check before pushing
+```
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Deployment
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Hosted on Vercel; a push to `main` deploys automatically. `VITE_`-prefixed
+environment variables are embedded at build time — after changing one in
+Vercel, redeploy without cache (or push a new commit).
