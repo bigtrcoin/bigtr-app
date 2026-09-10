@@ -1,14 +1,14 @@
 // src/hooks/usePresale.js
-// Ön satış kontratını okuyan + approve/buy akışını yürüten React hook'u.
-// Kontrat henüz deploy edilmediyse (adres boş) HİÇ okuma yapılmaz; çökmez.
+// React hook that reads the presale contract and runs the approve/buy flow.
+// If the contract is not deployed yet (empty address) NO reads happen; no crash.
 //
-// GÜNCELLEME (audit düzeltmeleri sonrası):
-//  - buy(payToken, payAmount, minTokensOut) yeni imzaya geçirildi (NSP).
-//    İşlem gönderilmeden hemen önce taze bir quote alınır ve SLIPPAGE_BPS
-//    toleransıyla minTokensOut hesaplanır. Fiyat bu sırada aleyhe değişirse
-//    kontrat işlemi geri alır — kullanıcının parası çekilmez.
-//  - Stage ilerlemesi için ek okumalar: stagesCount, tokensSoldInCurrentStage,
-//    remainingForSale ve aktif aşamanın (price, cap) bilgisi.
+// UPDATE (after audit fixes):
+//  - buy(payToken, payAmount, minTokensOut) migrated to the new signature (NSP).
+//    A fresh quote is taken right before sending the transaction and
+//    minTokensOut is derived with the SLIPPAGE_BPS tolerance. If the price
+//    moves against the buyer meanwhile, the contract reverts — no funds taken.
+//  - Extra reads for stage progress: stagesCount, tokensSoldInCurrentStage,
+//    remainingForSale and the active stage's (price, cap) info.
 
 import { useCallback } from "react";
 import {
@@ -26,12 +26,13 @@ import {
     SLIPPAGE_BPS,
 } from "../web3/presale";
 
-// Kontrat yoksa kullanılacak boş hook (gerçek useReadContract çağrılmaz).
+// Empty stand-in when no contract is configured (real useReadContract is not called).
 const EMPTY = { data: undefined };
 
-// Kontrat varsa gerçek okuma, yoksa boş — ama hook her render'da aynı sırada çağrılmalı.
+// Real read when the contract exists, empty otherwise — hooks must still be
+// called in the same order on every render.
 function useReadIfConfigured(method, params) {
-    // presaleConfigured render boyunca sabittir (env'den gelir), bu yüzden hook sırası bozulmaz.
+    // presaleConfigured is constant for the whole render (comes from env), so hook order is stable.
   if (!presaleConfigured) return EMPTY;
     // eslint-disable-next-line react-hooks/rules-of-hooks
   return useReadContract({
@@ -59,8 +60,8 @@ export function usePresale() {
           "function tokensAllocated(address) view returns (uint256)",
           account ? [account.address] : undefined
         );
-    // Aktif aşamanın (price, cap) bilgisi. Satış tamamen bittiyse stageIndex ==
-  // stagesCount olur ve stages(idx) revert eder; bu yüzden sınır kontrolü yapılır.
+    // Active stage (price, cap) info. When the sale is fully over stageIndex ==
+  // stagesCount and stages(idx) reverts, hence the bounds check.
   const stageParamsValid =
         stageIndex !== undefined && stagesCount !== undefined && stageIndex < stagesCount;
     const { data: currentStage } = useReadIfConfigured(
@@ -87,7 +88,7 @@ export function usePresale() {
                 if (!payTokenAddress) throw new Error("Payment token is not configured");
                 const payAmount = toUnits(String(humanAmount), STABLE_DECIMALS);
 
-          // NSP: işlemden hemen önce taze quote al ve slippage toleransı uygula.
+          // NSP: take a fresh quote right before the tx and apply slippage tolerance.
           const [freshTokens] = await readContract({
                     contract: presaleContract,
                     method: "function quote(uint256) view returns (uint256,uint256,uint256)",
@@ -130,7 +131,7 @@ export function usePresale() {
         stageIndex,
         stagesCount,
         soldInStage,
-        currentStage, // [price, cap] veya undefined
+        currentStage, // [price, cap] or undefined
         remainingForSale,
         totalTokensSold,
         totalRaised,

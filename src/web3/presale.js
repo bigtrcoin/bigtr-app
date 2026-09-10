@@ -1,13 +1,13 @@
 // src/web3/presale.js
-// thirdweb istemcisi + ön satış kontratı yapılandırması.
-// Adresler .env'den gelir (Vite => VITE_ önekli). Deploy edilmeden önce boş olabilirler;
-// bu durumda uygulama ÇÖKMEZ, sadece kontrata bağlı alanlar pasif kalır.
+// thirdweb client + presale contract configuration.
+// Addresses come from .env (Vite => VITE_ prefixed). They may be empty before
+// deployment; the app does NOT crash then, contract-bound fields just stay idle.
 //
-// GÜNCELLEME (audit düzeltmeleri sonrası):
-//  - Kontrat artık aynı anda TEK aktif ödeme tokeni kabul ediyor (SDR düzeltmesi).
-//    Bu yüzden PAY_TOKENS listesi yerine tek PAY_TOKEN kullanılır.
-//  - buy() artık minTokensOut parametresi alıyor (NSP düzeltmesi). Tolerans
-//    SLIPPAGE_BPS ile ayarlanır (varsayılan %0,5 = 50 baz puan).
+// UPDATE (after audit fixes):
+//  - The contract now accepts a SINGLE active payment token at a time (SDR fix),
+//    so a single PAY_TOKEN is used instead of the old PAY_TOKENS list.
+//  - buy() now takes a minTokensOut parameter (NSP fix). The tolerance is set
+//    via SLIPPAGE_BPS (default 0.5% = 50 basis points).
 
 import { createThirdwebClient, getContract } from "thirdweb";
 import { defineChain } from "thirdweb/chains";
@@ -16,29 +16,31 @@ export const client = createThirdwebClient({
     clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || "MISSING_CLIENT_ID",
 });
 
-// Ön satış BNB Chain üzerinde: test için 97, mainnet için 56.
+// Presale runs on BNB Chain: 97 for testnet, 56 for mainnet.
 export const presaleChain = defineChain(Number(import.meta.env.VITE_CHAIN_ID || 97));
 
 export const PRESALE_ADDRESS = import.meta.env.VITE_PRESALE_ADDRESS || "";
 export const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS || "";
 
-// Aktif TEK ödeme tokeni (kontrattaki activePayToken ile aynı olmalı).
+// The single ACTIVE payment token (must match activePayToken on the contract).
 export const PAY_TOKEN = {
     symbol: import.meta.env.VITE_PAY_TOKEN_SYMBOL || "USDT",
     address: import.meta.env.VITE_PAY_TOKEN_ADDRESS || "",
 };
 
-export const STABLE_DECIMALS = 18; // BSC USDT/USDC 18 ondalık
+export const STABLE_DECIMALS = 18; // BSC USDT/USDC use 18 decimals
 export const TOKEN_DECIMALS = 18;
 
-// Slippage toleransı (baz puan). 50 = %0,5.
-// Kullanıcı quote'ta gördüğünden bundan daha az token alacaksa işlem kontratta geri alınır.
+// Slippage tolerance in basis points. 50 = 0.5%.
+// If the buyer would receive less than this below the quoted amount, the
+// contract reverts the transaction.
 export const SLIPPAGE_BPS = 50n;
 
-// Geçerli bir 0x adres mi? (deploy öncesi boş olabilir)
+// Is this a valid 0x address? (may be empty before deployment)
 const isAddress = (a) => typeof a === "string" && /^0x[a-fA-F0-9]{40}$/.test(a);
 
-// Kontrat adresi tanımlıysa kontrat nesnesi, değilse null. Tüketen kod null kontrol etmeli.
+// Contract object when the address is configured, otherwise null.
+// Consuming code must null-check.
 export const presaleConfigured = isAddress(PRESALE_ADDRESS);
 export const payTokenConfigured = isAddress(PAY_TOKEN.address);
 

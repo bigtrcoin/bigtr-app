@@ -1,5 +1,5 @@
-// Beyaz bülten s.7 (tahsisat) + s.9 (vesting / kilit açılış takvimi) ile BİREBİR.
-// schedule sırası: [1. Ay, 2. Ay, 3. Ay, 6. Ay, 1 Yıl, 2 Yıl, 3 Yıl, 5 Yıl]
+// Matches the whitepaper EXACTLY: p.7 (allocation) + p.9 (vesting / unlock schedule).
+// schedule order: [1st Mo, 2nd Mo, 3rd Mo, 6th Mo, 1 Year, 2 Years, 3 Years, 5 Years]
 const Data = [
   {
     category: "Presale",

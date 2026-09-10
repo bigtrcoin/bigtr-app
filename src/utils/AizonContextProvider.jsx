@@ -5,8 +5,8 @@ import { chainInfo } from "../contracts/chainConfig";
 import { usePresale } from "../hooks/usePresale";
 import { STABLE_DECIMALS, TOKEN_DECIMALS } from "../web3/presale";
 
-const PRESALE_CAP = 1_190_000_000; // ön satışa sunulan toplam BIGTR
-// 1e18 ölçekli fiyatı okunabilir stringe çevir (5e14 -> "0.0005")
+const PRESALE_CAP = 1_190_000_000; // total BIGTR offered in the presale
+// Convert a 1e18-scaled price to a readable string (5e14 -> "0.0005")
 const fmtPrice = (v) => {
   if (!v) return "0";
   const n = Number(v) / 10 ** STABLE_DECIMALS;
@@ -15,7 +15,7 @@ const fmtPrice = (v) => {
 
 import { TbMoon, TbSunLow } from "react-icons/tb";
 
-// Ön satış BNB Chain üzerinde olduğu için sabit BNB yapılandırması kullanılır.
+// The presale lives on BNB Chain, so a fixed BNB configuration is used.
 const ACTIVE = chainInfo[0]; // BNB (tek zincir)
 
 const AizonContextProvider = ({ children }) => {
@@ -64,7 +64,7 @@ const AizonContextProvider = ({ children }) => {
 
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
-  // Cüzdan: thirdweb (tek kaynak)
+  // Wallet: thirdweb (single source of truth)
   const account = useActiveAccount();
   const addressData = account?.address;
   const isConnected = !!account;
@@ -77,7 +77,7 @@ const AizonContextProvider = ({ children }) => {
   const [titleText, setTitleText] = useState(ACTIVE.title);
   const [IsActiveBuyOnEth, setIsActiveBuyOnEth] = useState(false);
   const [IsActiveBuyOnBnb, setIsActiveBuyOnBnb] = useState(true);
-  const switchChain = () => {}; // dropdown kaldırıldı; uyumluluk için no-op
+  const switchChain = () => {}; // chain dropdown removed; no-op kept for compatibility
 
   const formatNumber = (num) => {
     let absNum = Math.abs(num);
@@ -122,8 +122,8 @@ const AizonContextProvider = ({ children }) => {
     });
   };
 
-  // --- Aşağıdaki ön satış değerleri şimdilik gösterim amaçlı sabittir;
-  // kontrat bağlandıktan sonra usePresale ile gerçek değerlere geçilecek. ---
+  // --- The presale values below are static placeholders for display;
+  // once the contract is wired they switch to live values via usePresale. ---
   const [userBalance] = useState("0");
   const [userPurchasedTokens] = useState(0);
   const [userPurchasedBonusTokens] = useState(0);
@@ -143,7 +143,7 @@ const AizonContextProvider = ({ children }) => {
     "0.0005", "0.001", "0.002", "0.003", "0.006", "0.012", "0.024", "0.048",
   ]);
 
-  // --- Kontrat okumaları (usePresale zaten deploy yokken güvenli) ---
+  // --- Contract reads (usePresale is already safe pre-deployment) ---
   const {
     configured,
     price: cPrice,
@@ -181,7 +181,7 @@ const AizonContextProvider = ({ children }) => {
   const [usdtBalance] = useState(0);
   const [usdcBalance] = useState(0);
 
-  // ROI hesaplayıcı (RioCalculate) tarafından kullanılır
+  // Used by the ROI calculator (RioCalculate)
   const handlePaymentInput = (e) => {
     const _inputValue = e.target.value;
     setBuyAmount(_inputValue);
@@ -189,11 +189,11 @@ const AizonContextProvider = ({ children }) => {
     setListingPayAmount(parseFloat(_inputValue * Number(listingPrice)) || 0);
   };
 
-  // Eski BuyCard'a ait yardımcılar (artık yeni BuyCard kullanmıyor; uyumluluk için bırakıldı)
+  // Helpers for the old BuyCard (the new BuyCard no longer uses them; kept for compatibility)
   const handlePaymentInputBuy = (e) => setPaymentAmount(e.target.value);
   const handlePayTokenInput = (e) => setPaymentAmount(e.target.value);
 
-  // Staking kaldırıldı; bağımlı bileşenler kırılmasın diye güvenli varsayılanlar
+  // Staking removed; safe defaults so dependent components don't break
   const totalStaked = 0;
   const totalReward = 0;
   const stakeLevelId = 0;

@@ -10,7 +10,7 @@ const TOTAL_SUPPLY = "2,975,000,000";
 const Tokenomics = () => {
   const { themeMode, colors, tokenSymbol } = useAizonData();
 
-  // 7 dilim için renk paleti (tema renklerinden türetilir)
+  // Color palette for the 7 slices (derived from theme colors)
   const palette = [
     colors.primary,
     colors.primary80,
@@ -21,7 +21,7 @@ const Tokenomics = () => {
     colors.primary70,
   ];
 
-  // Grafik ve açıklama verisi doğrudan beyaz bülten tablosundan (tokenomics.js) gelir
+  // Chart and legend data come straight from the whitepaper table (tokenomics.js)
   const allocationData = Data.map((item, i) => ({
     label: item.category,
     value: parseInt(item.allocation),

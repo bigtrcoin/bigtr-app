@@ -1,8 +1,8 @@
 // src/contracts/chainConfig.js
-// GÜNCELLEME: Ön satış yalnızca BNB Chain üzerinde ve kontrat aynı anda tek
-// stablecoin kabul ediyor (audit SDR düzeltmesi). ETH/Base seçenekleri ve
-// native token (BNB/ETH) ödemeleri kaldırıldı — bunlar kullanıcıyı yanıltıyordu.
-// Mainnet/testnet adı VITE_CHAIN_ID'ye göre belirlenir.
+// UPDATE: the presale runs only on BNB Chain and the contract accepts a single
+// stablecoin at a time (audit SDR fix). ETH/Base options and native token
+// (BNB/ETH) payments were removed — they were misleading buyers.
+// Mainnet/testnet naming is derived from VITE_CHAIN_ID.
 
 import IconUsdt from "../assets/images/chains/usdt.png";
 import IconBnb from "../assets/images/chains/bnb.png";
