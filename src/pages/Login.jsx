@@ -60,6 +60,8 @@ const Login = () => {
           client={client}
           chain={presaleChain}
           theme="dark"
+          connectModal={{ showThirdwebBranding: false }}
+          detailsModal={{ showThirdwebBranding: false }}
           connectButton={{
             label: "Connect Wallet",
             style: {

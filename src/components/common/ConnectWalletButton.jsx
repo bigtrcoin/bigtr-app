@@ -11,6 +11,8 @@ const ConnectWalletButton = () => {
         client={client}
         chain={presaleChain}
         theme={themeMode === "dark" ? "dark" : "light"}
+        connectModal={{ showThirdwebBranding: false }}
+        detailsModal={{ showThirdwebBranding: false }}
       />
     </div>
   );
