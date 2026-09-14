@@ -164,7 +164,7 @@ const BuyCard = () => {
           <div className="flex items-center gap-4 flex-wrap justify-between mb-2">
             <p className="font-chakrapetch uppercase text-base font-bold text-secondary">
               {soldOut ? (
-                <span className="text-primary">Presale Sold Out</span>
+                <span className="text-primary">Pre-sale Sold Out</span>
               ) : (
                 <>
                   <span className="text-secondary-80">Stage:</span>{" "}
@@ -233,7 +233,7 @@ const BuyCard = () => {
         {/* Alinacak BIGTR (kontrattan quote) */}
         <div className="mb-5 sm:mb-10">
           <label className="block mb-2 font-chakrapetch uppercase text-base font-bold text-secondary">
-            Get Token
+            You Receive
           </label>
           <div className="relative w-full rounded-[18px] px-4 sm:px-5 py-3 sm:py-5.5 bg-secondary-3 border-2 border-secondary-8">
             <input
@@ -249,8 +249,9 @@ const BuyCard = () => {
             </div>
           </div>
           <p className="mt-2 font-chakrapetch text-sm text-secondary-80">
-            Tokens are allocated on-chain now and distributed at listing according to
-            the 50% / 25% / 25% vesting schedule.
+            Your allocation is recorded on-chain now. Coins are distributed from the
+            first Tier-1 crypto exchange listing: 50% at listing, 25% after 30 days,
+            25% after 60 days.
           </p>
         </div>
 

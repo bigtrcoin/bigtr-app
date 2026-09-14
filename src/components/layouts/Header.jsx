@@ -32,7 +32,7 @@ const Header = () => {
               <div className="h-12.5 flex items-start xl:items-end gap-5 sm:gap-6 2xl:gap-10">
                 <div className="flex md:hidden">
                   <a href="https://bigtrcoin.com/" className="block w-27 h-12.5">
-                    <img src="/logo.png" alt="BigTrCoin" className="w-full h-full object-contain" />
+                    <img src="/logo.png" alt="BigTR Coin" className="w-full h-full object-contain" />
                   </a>
                 </div>
                 <div className="hidden md:pt-px header-text sm:flex items-start xl:gap-8 2xl:gap-10">

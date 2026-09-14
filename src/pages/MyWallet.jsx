@@ -7,7 +7,7 @@ import MyTransactions from "./../components/common/MyTransactions";
 
 const MyWallet = () => {
   return (
-    <Layout pageTitle="BigTrCoin - My Wallet">
+    <Layout pageTitle="BigTR Coin - My Wallet">
       <ScrollAnimate>
         <StatusCard />
         <div className="pb-7.5">

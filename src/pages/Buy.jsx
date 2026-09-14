@@ -5,7 +5,7 @@ import ScrollAnimate from "../components/layouts/ScrollAnimate";
 
 const Buy = () => {
   return (
-    <Layout pageTitle="BigTrCoin - Buy Now">
+    <Layout pageTitle="BigTR Coin - Buy Now">
       <ScrollAnimate>
         <BuyNow />
       </ScrollAnimate>

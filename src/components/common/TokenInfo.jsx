@@ -53,7 +53,7 @@ const TokenInfo = ({ variant }) => {
         </li>
         <li className="pt-3.5 flex items-center gap-3 justify-between">
           <p className="capitalize text-[15px] 2xl:text-base font-medium text-secondary-80">
-            Presale Contract
+            Pre-sale Contract
           </p>
 
           <div className="flex items-center gap-1">
@@ -80,7 +80,9 @@ const TokenInfo = ({ variant }) => {
         {variant == "buy" && (
           <li className="pt-2 text-right">
             <p className="text-xs font-medium text-secondary-70">
-              Audited by Cyberscope • Buy only through this app*
+              Audited by Cyberscope. The official pre-sale runs only through
+              app.bigtrcoin.com and the contract above. BigTR does not sell through
+              any other website or launchpad.
             </p>
           </li>
         )}

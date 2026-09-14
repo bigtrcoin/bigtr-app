@@ -152,7 +152,7 @@ const LeaderboardAll = () => {
       {Data.length > 0 && (
         <div className="mb-4 p-3.25 text-center bg-[linear-gradient(90deg,#ffffff00_0%,var(--color-secondary-6)_50%,#ffffff00_100%)]">
           <h2 className="uppercase font-chakrapetch font-bold text-[15px] md:text-[16px] text-secondary">
-            Leaderboard updates as the presale progresses
+            Leaderboard updates as the pre-sale progresses
           </h2>
         </div>
       )}
@@ -172,7 +172,7 @@ const LeaderboardAll = () => {
               </th>
               <th className="pl-5 pr-5 md:pr-10 py-2.5 text-right uppercase text-sm font-bold text-secondary-80">
                 <div className="flex items-center justify-end gap-1">
-                  Total <span className="hidden sm:block">Transactions</span>
+                  Total <span className="hidden sm:block">BIGTR</span>
                 </div>
               </th>
             </tr>

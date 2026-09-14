@@ -1,93 +1,54 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useAizonData } from "../../utils/AizonContext";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
+// Estimated ROI calculator.
+// Every figure that depends on listingPrice is an ESTIMATE based on the
+// projected listing price from the context (0.096 USDT). It is not a promise
+// or a guarantee of any future price, and the UI says so explicitly.
 const RioCalculate = () => {
   const { tokenSymbol, maxStage, stages, currentStage, listingPrice } =
     useAizonData();
 
-  const [buyAmount, setBuyAmount] = useState(0);
-  const [paymentUsd, setPaymentUsd] = useState(0);
-  const [listingPayAmount, setListingPayAmount] = useState(0);
-  const [rioPercentage, setRioPercentage] = useState(0);
-
   const MIN = 1;
   const MAX = maxStage;
 
+  const [buyAmount, setBuyAmount] = useState("");
   const [stage, setStage] = useState(currentStage);
 
-  const price = stages[stage - 1];
+  // All derived values come from (stage, buyAmount) so the stage slider,
+  // arrows and the amount field can never get out of sync.
+  const price = Number(stages[stage - 1]);
+  const amount = Number(buyAmount) || 0;
+  const paymentUsd = useMemo(() => amount * price, [amount, price]);
+  const listingPayAmount = useMemo(
+    () => amount * Number(listingPrice),
+    [amount, listingPrice],
+  );
+  const roiPercentage = useMemo(() => {
+    if (!price || price <= 0 || !listingPrice) return 0;
+    return (((Number(listingPrice) - price) / price) * 100).toFixed(0);
+  }, [price, listingPrice]);
+
   const filled = ((stage - MIN) / (MAX - MIN)) * 100;
 
-  const decrease = () => {
-    if (stage > MIN) {
-      setStage(Number(stage) - 1);
-
-      const _price = stages[stage - 2];
-      const _payUsd = parseFloat(buyAmount * _price);
-      setPaymentUsd(_payUsd);
-      const _payListing = parseFloat(buyAmount * listingPrice);
-      setListingPayAmount(_payListing);
-    }
-  };
-
-  const increase = () => {
-    if (stage < MAX) {
-      setStage(Number(stage) + 1);
-
-      const _price = stages[stage];
-      const _payUsd = parseFloat(buyAmount * _price);
-      setPaymentUsd(_payUsd);
-      const _payListing = parseFloat(buyAmount * listingPrice);
-      setListingPayAmount(_payListing);
-    }
-  };
-
-  const handleStageChange = (e) => {
-    e.preventDefault();
-    let _inputValue = e.target.value;
-    setStage(_inputValue);
-
-    if (buyAmount != "") {
-      const _payUsd = parseFloat(buyAmount * price);
-      setPaymentUsd(_payUsd);
-      const _payListing = parseFloat(buyAmount * listingPrice);
-      setListingPayAmount(_payListing);
-    }
-  };
-
-  // handle payment input
-  const handlePaymentInput = (e) => {
-    e.preventDefault();
-    let _inputValue = e.target.value;
-    setBuyAmount(_inputValue);
-    const _payUsd = parseFloat(_inputValue * price);
-    setPaymentUsd(_payUsd);
-    const _payListing = parseFloat(_inputValue * listingPrice);
-    setListingPayAmount(_payListing);
-  };
-
-  useEffect(() => {
-    const calculateRIO = (stagePrice, listingPrice) => {
-      if (!stagePrice || stagePrice <= 0 || !listingPrice) return 0;
-
-      const _rio = (((listingPrice - stagePrice) / stagePrice) * 100).toFixed(
-        0,
-      );
-      setRioPercentage(_rio);
-    };
-
-    calculateRIO(price, listingPrice);
-  }, [stage, price, listingPrice]);
+  const decrease = () => stage > MIN && setStage(Number(stage) - 1);
+  const increase = () => stage < MAX && setStage(Number(stage) + 1);
+  const handleStageChange = (e) => setStage(Number(e.target.value));
+  const handlePaymentInput = (e) => setBuyAmount(e.target.value);
 
   return (
     <div className="h-full rounded-[15px] px-5 md:px-6.25 2xl:px-10 pb-4.25 bg-card">
       {/* title */}
-      <div className="pt-5 md:pt-7 mb-4 sm:mb-5.5">
+      <div className="pt-5 md:pt-7 mb-1">
         <h2 className="aizon-title uppercase font-chakrapetch font-bold text-secondary">
-          ROI Calculate
+          Estimated ROI
         </h2>
       </div>
+      <p className="mb-4 sm:mb-5.5 font-chakrapetch text-xs text-secondary-70">
+        Based on a projected listing price of {listingPrice} USDT. This is an
+        estimate, not a promise or guarantee of any future price.
+      </p>
 
       <div className="mb-6.25 font-chakrapetch font-bold uppercase">
         <label className="block mb-1 text-base text-secondary">
@@ -97,6 +58,7 @@ const RioCalculate = () => {
         <div className="relative">
           <input
             type="number"
+            min="0"
             className="w-full rounded-xl border-2 border-secondary-8 px-3.75 py-3.5 bg-secondary-3 text-xl text-secondary"
             placeholder="Enter Amount"
             value={buyAmount}
@@ -111,26 +73,26 @@ const RioCalculate = () => {
 
       <div className="mb-6.25 font-chakrapetch font-bold uppercase">
         <label className="block mb-1 text-base text-secondary">
-          USD Amount
+          Cost at this stage (USDT)
         </label>
         <input
           type="number"
           className="w-full rounded-xl border-2 border-secondary-8 px-3.75 py-3.5 bg-secondary-3 text-xl text-secondary"
           placeholder="0.00"
-          value={Number(paymentUsd).toFixed(2)}
+          value={paymentUsd.toFixed(2)}
           disabled
         />
       </div>
 
       <div className="mb-6.25 font-chakrapetch font-bold uppercase">
         <label className="block mb-1 text-base text-secondary">
-          Listing Price
+          Est. value at listing (USDT)
         </label>
         <input
           type="number"
           className="w-full rounded-xl border-2 border-secondary-8 px-3.75 py-3.5 bg-secondary-3 text-xl text-secondary"
           placeholder="0.00"
-          value={Number(listingPayAmount).toFixed(2)}
+          value={listingPayAmount.toFixed(2)}
           disabled
         />
       </div>
@@ -143,7 +105,7 @@ const RioCalculate = () => {
           </h4>
 
           <h5 className="text-base text-secondary">
-            Price: <span className="text-primary">${price}</span>
+            Price: <span className="text-primary">${stages[stage - 1]}</span>
           </h5>
         </div>
 
@@ -188,8 +150,11 @@ const RioCalculate = () => {
 
       <div className="text-center">
         <h2 className="uppercase font-chakrapetch font-bold text-[22px] xs:text-[24px] 2xl:text-[30px] text-secondary">
-          ROI: <span className="text-primary">{rioPercentage}%</span>
+          Est. ROI: <span className="text-primary">{roiPercentage}%</span>
         </h2>
+        <p className="mt-1 font-chakrapetch text-xs text-secondary-70">
+          Projection only. Actual results depend on market conditions.
+        </p>
       </div>
     </div>
   );

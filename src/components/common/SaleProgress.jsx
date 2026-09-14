@@ -7,6 +7,7 @@ const SaleProgress = () => {
     tokenSymbol,
     currentPrice,
     nextPrice,
+    listingPrice,
     raisedUsd,
     goalUsd,
     tokenPercent,
@@ -45,7 +46,9 @@ const SaleProgress = () => {
         <div className="flex items-center gap-2.5">
           <FaCircle className="text-[12px] text-primary" />
           <h4 className="font-chakrapetch uppercase text-[14px] sm:text-base font-bold text-primary-70">
-            Next Price: 1 {tokenSymbol} = ${nextPrice}
+            {nextPrice
+              ? `Next Price: 1 ${tokenSymbol} = $${nextPrice}`
+              : `Est. Listing Price: 1 ${tokenSymbol} ≈ $${listingPrice} (projection, not guaranteed)`}
           </h4>
         </div>
       </div>

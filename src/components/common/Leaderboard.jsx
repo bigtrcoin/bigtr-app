@@ -41,7 +41,7 @@ const Leaderboard = () => {
                 </th>
                 <th className="pb-2.5 text-right uppercase text-sm font-bold text-secondary-80">
                   <div className="flex items-center justify-end gap-1">
-                    Total <span className="hidden sm:block">Transactions</span>
+                    Total <span className="hidden sm:block">BIGTR</span>
                   </div>
                 </th>
               </tr>
@@ -106,7 +106,7 @@ const Leaderboard = () => {
             <tbody>
               <tr className="bg-surface flex items-center justify-between">
                 <td className="w-[66%] pl-5 md:pl-6.25 2xl:pl-10 py-4 uppercase text-sm xs:text-base font-medium text-secondary">
-                  <span>Leaderboard updates as the presale progresses</span>
+                  <span>Leaderboard updates as the pre-sale progresses</span>
                 </td>
               </tr>
             </tbody>

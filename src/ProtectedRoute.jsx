@@ -14,7 +14,7 @@ const WrongNetwork = () => {
           Wrong network
         </h2>
         <p className="font-chakrapetch text-sm text-secondary-80 mb-6">
-          Your wallet is connected to a different network. The BIGTR presale runs on
+          Your wallet is connected to a different network. The BIGTR pre-sale runs on
           <span className="text-primary font-bold"> BNB Smart Chain</span>. Switch to continue.
         </p>
         <button

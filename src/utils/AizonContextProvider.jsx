@@ -131,14 +131,16 @@ const AizonContextProvider = ({ children }) => {
   const [userReferredPay] = useState(0);
 
   const [tokenAddress] = useState(import.meta.env.VITE_PRESALE_ADDRESS || "");
-  const [tokenName] = useState("BigTrCoin");
-  const [tokenSymbol] = useState("$BIGTR");
+  const [tokenName] = useState("BigTR Coin");
+  const [tokenSymbol] = useState("BIGTR");
   const [tokenDecimals] = useState(18);
   const [tokenTotalSupply] = useState(2975000000);
 
   const [maxStage] = useState(8);
+  // PROJECTED listing price, used only for estimates (ROI calculator, "value
+  // at listing"). It is an assumption, not a promise: no future price is
+  // guaranteed. Every place that shows it must label it as an estimate.
   const [listingPrice] = useState("0.096");
-  const [stageEnd] = useState(1780483031);
   const [stages] = useState([
     "0.0005", "0.001", "0.002", "0.003", "0.006", "0.012", "0.024", "0.048",
   ]);
@@ -157,8 +159,9 @@ const AizonContextProvider = ({ children }) => {
   const stageIdx = live && cStageIndex !== undefined ? Number(cStageIndex) : 0;
   const currentStage = Math.min(stageIdx + 1, 8);
   const currentPrice = live && cPrice ? fmtPrice(cPrice) : "0.0005";
-  const nextPrice =
-    stageIdx + 1 < stages.length ? stages[stageIdx + 1] : listingPrice;
+  // Next stage price; null in the final stage (there is no next stage - the
+  // listing price is an estimate and is shown separately, never as "next").
+  const nextPrice = stageIdx + 1 < stages.length ? stages[stageIdx + 1] : null;
   const raisedUsd = live && cRaised ? Number(cRaised) / 10 ** STABLE_DECIMALS : 0;
   const tokenSold = live && cSold ? Number(cSold) / 10 ** TOKEN_DECIMALS : 0;
   const tokenPercent = live
@@ -193,17 +196,6 @@ const AizonContextProvider = ({ children }) => {
   const handlePaymentInputBuy = (e) => setPaymentAmount(e.target.value);
   const handlePayTokenInput = (e) => setPaymentAmount(e.target.value);
 
-  // Staking removed; safe defaults so dependent components don't break
-  const totalStaked = 0;
-  const totalReward = 0;
-  const stakeLevelId = 0;
-  const stakeLevels = null;
-  const userStakeLevelId = 0;
-  const userStakeAmount = 0;
-  const userStakeLockTime = 0;
-  const userGetRewardAmount = 0;
-  const getBonusPayAmount = 0;
-  const getBonusToken = 0;
   const userChainId = bnbChainId;
 
   const makeEmptyInputs = () => {
@@ -269,7 +261,6 @@ const AizonContextProvider = ({ children }) => {
         currentStage,
         currentPrice,
         listingPrice,
-        stageEnd,
         nextPrice,
         raisedUsd,
         goalUsd,
@@ -284,16 +275,6 @@ const AizonContextProvider = ({ children }) => {
         handlePaymentInput,
         handlePaymentInputBuy,
         handlePayTokenInput,
-        totalStaked,
-        totalReward,
-        stakeLevelId,
-        stakeLevels,
-        userStakeLevelId,
-        userStakeAmount,
-        userStakeLockTime,
-        userGetRewardAmount,
-        getBonusPayAmount,
-        getBonusToken,
         userChainId,
       }}
     >

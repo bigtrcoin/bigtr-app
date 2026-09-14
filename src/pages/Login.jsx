@@ -45,15 +45,15 @@ const Login = () => {
       >
         <img
           src="/logo.png"
-          alt="BigTrCoin"
+          alt="BigTR Coin"
           style={{ width: "140px", animation: "bigtr-float 3.4s ease-in-out infinite" }}
         />
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-bold font-onest text-secondary">
-            BigTrCoin Presale
+            BigTR Coin Pre-sale
           </h1>
           <p className="mt-2 font-onest text-secondary" style={{ opacity: 0.65 }}>
-            Connect your wallet to access the presale panel
+            Connect your wallet to access the pre-sale panel
           </p>
         </div>
         <ConnectButton

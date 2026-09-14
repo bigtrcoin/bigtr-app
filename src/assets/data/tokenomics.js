@@ -1,14 +1,15 @@
-// Matches the whitepaper EXACTLY: p.7 (allocation) + p.9 (vesting / unlock schedule).
+// Matches BigTR Coin Whitepaper v1.5: allocation + unlock schedule. Category
+// names follow the whitepaper exactly.
 // schedule order: [1st Mo, 2nd Mo, 3rd Mo, 6th Mo, 1 Year, 2 Years, 3 Years, 5 Years]
 const Data = [
   {
-    category: "Presale",
+    category: "Pre-Sale",
     allocation: "40%",
     tokenAmount: "1190000000",
     schedule: ["50%", "25%", "25%", "", "", "", "", ""],
   },
   {
-    category: "Reserve Liquidity",
+    category: "Reserve Liquidity Pool",
     allocation: "25%",
     tokenAmount: "743750000",
     schedule: ["20%", "", "", "", "20%", "20%", "20%", "20%"],
@@ -32,7 +33,7 @@ const Data = [
     schedule: ["", "", "", "", "50%", "50%", "", ""],
   },
   {
-    category: "Ecosystem & Development",
+    category: "Application Development",
     allocation: "5%",
     tokenAmount: "148750000",
     schedule: ["", "", "", "25%", "25%", "25%", "25%", ""],

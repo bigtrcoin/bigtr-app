@@ -58,12 +58,12 @@ const Banner = () => {
 
         <div className="w-full lg:w-[70%]">
           <h2 className="mb-5 sm:mb-4.5 w-full max-w-62.5 sm:max-w-75 md:max-w-99.25 uppercase font-chakrapetch text-3xl sm:text-4xl md:text-[50px] md:leading-15 font-bold text-white">
-            Discover BigTrCoin
+            BigTR Coin Pre-sale
           </h2>
 
           <p className="max-w-full w-full md:max-w-128.5 text-base sm:leading-8 font-medium text-white">
-            Buy $BIGTR now and be part of the next generation blockchain revolution.
-            Join the presale and influence the future of BigTrCoin.
+            Buy BIGTR, the digital layer of a real-economy ecosystem. Every stage,
+            price and purchase is recorded on-chain on BNB Smart Chain.
           </p>
 
           <div className="mt-8 sm:mt-10 flex items-center gap-5 xl:gap-12 flex-wrap">
@@ -79,13 +79,18 @@ const Banner = () => {
 
             <div className="font-chakrapetch">
               <h4 className="mb-0.5 uppercase text-base font-bold text-white-80">
-                Listing Price
+                Est. Listing Price*
               </h4>
               <h3 className="uppercase text-[18px] sm:text-xl font-bold text-white">
-                1 {tokenSymbol} = {listingPrice} USDT
+                1 {tokenSymbol} ≈ {listingPrice} USDT
               </h3>
             </div>
           </div>
+
+          <p className="mt-4 max-w-full md:max-w-128.5 font-chakrapetch text-xs text-white-80">
+            *Projected listing price used for estimates only. No future price is
+            promised or guaranteed.
+          </p>
         </div>
       </div>
     </section>

@@ -5,7 +5,7 @@ import TransactionsAll from "../components/common/TransactionsAll";
 
 const Transactions = () => {
   return (
-    <Layout pageTitle="BigTrCoin - Transactions">
+    <Layout pageTitle="BigTR Coin - Transactions">
       <ScrollAnimate>
         <TransactionsAll />
       </ScrollAnimate>

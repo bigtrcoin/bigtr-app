@@ -1,6 +1,6 @@
 # bigtr-app
 
-Presale dApp for BigTrCoin (BIGTR) — [app.bigtrcoin.com](https://app.bigtrcoin.com)
+Official pre-sale dApp for BigTR Coin (BIGTR) — [app.bigtrcoin.com](https://app.bigtrcoin.com)
 
 React + Vite + Tailwind CSS single-page app on BNB Smart Chain. Wallet
 connection and contract calls go through the thirdweb SDK; purchases are made

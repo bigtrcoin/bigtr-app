@@ -132,13 +132,13 @@ const Sidebar = () => {
                   isSidebarVisible ? "w-42.5 h-21.25" : "w-12.5 h-12.5"
                 }`}
               >
-                <img src={LogoImg} alt="BigTrCoin" className="w-full h-full object-contain" />
+                <img src={LogoImg} alt="BigTR Coin" className="w-full h-full object-contain" />
               </a>
             </div>
             {/* header logo - mobile */}
             <div className="flex xl:hidden p-3.75">
               <a href="https://bigtrcoin.com/" className="transition-all duration-300 w-25 h-12.5 block">
-                <img src={LogoImg} alt="BigTrCoin" className="w-full h-full object-contain" />
+                <img src={LogoImg} alt="BigTR Coin" className="w-full h-full object-contain" />
               </a>
             </div>
             <div className="w-37.5 h-0.5 bg-linear-to-r from-secondary-20 to-transparent"></div>

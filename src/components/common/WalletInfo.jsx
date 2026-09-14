@@ -65,7 +65,7 @@ const WalletInfo = () => {
           {myAllocation.toLocaleString()} <span className="text-secondary">BIGTR</span>
         </h3>
         <p className="mt-2 font-chakrapetch text-sm text-secondary-80">
-          Tokens are distributed at listing according to the vesting schedule.
+          Coins are distributed from the first Tier-1 crypto exchange listing: 50% at listing, 25% after 30 days, 25% after 60 days.
         </p>
       </div>
     </div>

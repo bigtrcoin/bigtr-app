@@ -15,7 +15,7 @@ const howToBuy = [
     number: "03",
     title: "Confirm & receive allocation",
     description:
-      "Enter how much USDT you want to spend, approve USDT and confirm the purchase. Your BIGTR allocation is recorded on-chain instantly and distributed at listing: 50% at TGE, 25% after 30 days and 25% after 60 days.",
+      "Enter how much USDT you want to spend, approve USDT and confirm the purchase. Your BIGTR allocation is recorded on-chain instantly. Coins are distributed from the first Tier-1 crypto exchange listing: 50% at listing, 25% after 30 days and 25% after 60 days.",
   },
 ];
 

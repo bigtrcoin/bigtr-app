@@ -5,7 +5,7 @@ import LeaderboardAll from "./../components/common/LeaderboardAll";
 
 const Leaderboard = () => {
   return (
-    <Layout pageTitle="BigTrCoin - Leaderboard">
+    <Layout pageTitle="BigTR Coin - Leaderboard">
       <ScrollAnimate>
         <LeaderboardAll />
       </ScrollAnimate>

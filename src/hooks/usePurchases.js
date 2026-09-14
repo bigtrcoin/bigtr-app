@@ -139,5 +139,19 @@ export default function usePurchases() {
     return transactions.filter((t) => t.walletAddress.toLowerCase() === a);
   };
 
-  return { transactions, leaderboard, myTransactions, loading, error };
+  // Numeric totals for one wallet: USDT actually paid and BIGTR bought.
+  // "paid" is the real investment figure (sum of Purchased.paid), independent
+  // of the current stage price.
+  const myTotals = (address) => {
+    if (!address) return { paid: 0, tokens: 0, count: 0 };
+    const a = address.toLowerCase();
+    let paid = 0, tokens = 0, count = 0;
+    for (const p of raw) {
+      if (p.buyer.toLowerCase() !== a) continue;
+      paid += p.paid; tokens += p.tokens; count += 1;
+    }
+    return { paid, tokens, count };
+  };
+
+  return { transactions, leaderboard, myTransactions, myTotals, loading, error };
 }

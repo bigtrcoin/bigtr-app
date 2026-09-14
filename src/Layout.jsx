@@ -20,7 +20,7 @@ const Layout = ({ pageTitle, children }) => {
         {pageTitle ? (
           <title>{pageTitle}</title>
         ) : (
-          <title>BigTrCoin Presale</title>
+          <title>BigTR Coin Pre-sale</title>
         )}
 
         {/* favicon included here  */}
