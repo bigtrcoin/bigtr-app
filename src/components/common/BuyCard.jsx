@@ -249,9 +249,10 @@ const BuyCard = () => {
             </div>
           </div>
           <p className="mt-2 font-chakrapetch text-sm text-secondary-80">
-            Your allocation is recorded on-chain now. Coins are distributed from the
-            first Tier-1 crypto exchange listing: 50% at listing, 25% after 30 days,
-            25% after 60 days.
+            Your allocation is recorded on-chain now. Coins are distributed 50% in
+            month 1, 25% in month 2 and 25% in month 3 after the first Tier-1 crypto
+            exchange listing. Exact claim timing and release mechanics will be
+            announced before deployment.
           </p>
         </div>
 
