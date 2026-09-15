@@ -15,17 +15,21 @@ export const emailWallet = inAppWallet({
   smartAccount: { chain: presaleChain, sponsorGas: SPONSOR_GAS },
 });
 
-// Order = order in the modal: the wallets buyers already use come first
-// (MetaMask on top); email/social sign-in is offered last for newcomers.
-export const walletList = [
+// The main connect modal lists ONLY self-custody wallets, MetaMask first: as
+// soon as an in-app wallet is in the list, thirdweb's modal puts the
+// email/social form on top, which is not the flow Bigtr wants. Email sign-in
+// is offered through a separate, secondary modal (emailWalletList).
+export const externalWallets = [
   createWallet("io.metamask"),
   createWallet("com.trustwallet.app"),
   createWallet("com.binance.wallet"),
   walletConnect(),
-  emailWallet,
 ];
 
-export const wallets = walletList;
+export const emailWalletList = [emailWallet];
+
+export const walletList = externalWallets;
+export const wallets = externalWallets;
 
 // True when the active wallet is the email/social wallet whose fees we sponsor.
 export const isSponsoredWallet = (wallet) => SPONSOR_GAS && wallet?.id === "inApp";

@@ -1,15 +1,38 @@
-import React from "react";
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import React, { useState } from "react";
+import { ConnectButton, useActiveAccount, useConnectModal } from "thirdweb/react";
 import { Navigate } from "react-router-dom";
 import { client, presaleChain } from "../web3/presale";
-import { walletList } from "../web3/wallets";
+import { externalWallets, emailWalletList } from "../web3/wallets";
 
 const Login = () => {
   const account = useActiveAccount();
+  const { connect } = useConnectModal();
+  const [emailBusy, setEmailBusy] = useState(false);
 
   if (account) {
     return <Navigate to="/" replace />;
   }
+
+  // Secondary path: a separate modal with only the email/social wallet, so the
+  // primary "Connect Wallet" modal stays a plain wallet list (MetaMask first).
+  const signInWithEmail = async () => {
+    try {
+      setEmailBusy(true);
+      await connect({
+        client,
+        chain: presaleChain,
+        wallets: emailWalletList,
+        theme: "dark",
+        size: "compact",
+        title: "Sign in with email",
+        showThirdwebBranding: false,
+      });
+    } catch {
+      /* closed or cancelled */
+    } finally {
+      setEmailBusy(false);
+    }
+  };
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-body px-4">
@@ -60,7 +83,7 @@ const Login = () => {
         <ConnectButton
           client={client}
           chain={presaleChain}
-          wallets={walletList}
+          wallets={externalWallets}
           theme="dark"
           connectModal={{ showThirdwebBranding: false, size: "compact", title: "Connect your wallet" }}
           detailsModal={{ showThirdwebBranding: false }}
@@ -77,9 +100,19 @@ const Login = () => {
             },
           }}
         />
-        <p className="font-onest text-xs text-secondary text-center" style={{ opacity: 0.4 }}>
-          MetaMask, Trust Wallet, Binance Wallet, WalletConnect · No crypto wallet? Sign in with email
-          <br />
+        <p className="font-onest text-xs text-secondary text-center" style={{ opacity: 0.55 }}>
+          MetaMask · Trust Wallet · Binance Wallet · WalletConnect
+        </p>
+        <button
+          type="button"
+          onClick={signInWithEmail}
+          disabled={emailBusy}
+          className="font-onest text-sm text-secondary underline underline-offset-4 hover:opacity-100 transition disabled:opacity-40"
+          style={{ opacity: 0.6 }}
+        >
+          No crypto wallet? Sign in with email
+        </button>
+        <p className="font-onest text-xs text-secondary" style={{ opacity: 0.4 }}>
           Secure connection · BNB Smart Chain
         </p>
       </div>
