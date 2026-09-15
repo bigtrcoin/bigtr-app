@@ -11,10 +11,21 @@
 
 import { createThirdwebClient, getContract } from "thirdweb";
 import { defineChain } from "thirdweb/chains";
+import { createWallet, walletConnect } from "thirdweb/wallets";
 
 export const client = createThirdwebClient({
     clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || "MISSING_CLIENT_ID",
 });
+
+// Wallets offered in the connect modal, in this order. Wallet-only on purpose:
+// social/e-mail sign-in creates an empty in-app wallet that buyers then have to
+// fund separately, so it is not offered. WalletConnect covers every other wallet.
+export const walletList = [
+    createWallet("io.metamask"),
+    createWallet("com.trustwallet.app"),
+    createWallet("com.binance.wallet"),
+    walletConnect(),
+];
 
 // Presale runs on BNB Chain: 97 for testnet, 56 for mainnet.
 export const presaleChain = defineChain(Number(import.meta.env.VITE_CHAIN_ID || 97));
