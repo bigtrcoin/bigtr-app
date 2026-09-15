@@ -3,7 +3,7 @@ const howToBuy = [
     number: "01",
     title: "Get USDT on BNB Chain",
     description:
-      "Buy USDT on any major exchange (Binance, OKX, Bybit) and withdraw it to your own wallet via the BNB Smart Chain (BEP-20) network. Keep a small amount of BNB in your wallet to cover gas fees.",
+      "Buy USDT on any major crypto exchange (Binance, OKX, Bybit) and withdraw it to your own wallet via the BNB Smart Chain (BEP-20) network. Keep a small amount of BNB in your wallet to cover gas fees.",
   },
   {
     number: "02",

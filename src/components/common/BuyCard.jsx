@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { FaCircle } from "react-icons/fa6";
 import { useActiveAccount } from "thirdweb/react";
 import { usePresale } from "../../hooks/usePresale";
+import WalletReadiness, { friendlyTxError } from "./WalletReadiness";
 import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS, client, presaleChain } from "../../web3/presale";
 import { BuyWidget } from "thirdweb/react";
 import { Bridge, toUnits } from "thirdweb";
@@ -33,6 +34,8 @@ const BuyCard = () => {
   const [amount, setAmount] = useState("");
   const [tokensOut, setTokensOut] = useState(0n);
   const [status, setStatus] = useState("");
+  // Filled in by WalletReadiness: whether USDT + BNB balances allow a purchase.
+  const [ready, setReady] = useState({ ok: true, label: "Buy Now", reason: "" });
 
   const unitPrice = fromUnits(price, STABLE_DECIMALS); // 1 BIGTR = ? USD
   const raised = fromUnits(totalRaised, STABLE_DECIMALS);
@@ -79,6 +82,10 @@ const BuyCard = () => {
       setStatus("Please enter a valid amount.");
       return;
     }
+    if (!ready.ok) {
+      setStatus(ready.reason);
+      return;
+    }
     try {
       setStatus("Confirm the approval and purchase in your wallet...");
       await buy(PAY_TOKEN.address, amount);
@@ -86,19 +93,9 @@ const BuyCard = () => {
       setAmount("");
       setTokensOut(0n);
     } catch (e) {
-      const msg = e?.message || "unknown error";
-      // Kontrattaki slippage korumasi devreye girdiyse kullaniciya net anlat:
-      // parasi cekilmedi, sadece fiyat degisti.
-      if (msg.toLowerCase().includes("slippage")) {
-        setStatus(
-          "Price moved to the next stage while your transaction was pending. " +
-            "No funds were taken. Please review the updated quote and try again."
-        );
-      } else {
-        setStatus("Transaction failed: " + msg);
-      }
+      setStatus(friendlyTxError(e?.message));
     }
-  }, [account, amount, buy]);
+  }, [account, amount, buy, ready]);
 
   // Kredi karti: thirdweb BuyWidget -> kullanici KENDI cuzdanina USDT alir, sonra normal Buy Now.
   // (Kontrat hicbir zaman kart saglayicisi tarafindan cagrilmaz; alokasyon daima alicinin cuzdanina yazilir.)
@@ -256,19 +253,22 @@ const BuyCard = () => {
           </p>
         </div>
 
+        {/* Balance pre-flight: explains what is missing instead of failing later */}
+        <WalletReadiness account={account} amount={amount} onChange={setReady} />
+
         {/* Buy Now -> taze quote + slippage korumali approve + buy */}
         <div className="mb-5">
           <button
             onClick={handleBuy}
-            disabled={isBuying || soldOut}
+            disabled={isBuying || soldOut || !ready.ok}
             className="aizon-btn w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-primary font-chakrapetch uppercase text-[18px] leading-none font-bold text-btn-text disabled:opacity-60"
           >
             <span className="btn-inner">
               <span className="btn-normal-text">
-                {soldOut ? "Sold Out" : isBuying ? "Processing..." : "Buy Now"}
+                {soldOut ? "Sold Out" : isBuying ? "Processing..." : ready.label}
               </span>
               <span className="btn-hover-text">
-                {soldOut ? "Sold Out" : isBuying ? "Processing..." : "Buy Now"}
+                {soldOut ? "Sold Out" : isBuying ? "Processing..." : ready.label}
               </span>
             </span>
           </button>

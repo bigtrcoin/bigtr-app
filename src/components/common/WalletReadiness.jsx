@@ -1,0 +1,182 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { useWalletBalance } from "thirdweb/react";
+import { PAY_TOKEN, client, presaleChain } from "../../web3/presale";
+
+// Minimum native balance we require before letting the user try to buy.
+// Two transactions (approve + buy) cost well under 0.001 BNB on BNB Chain
+// at current gas prices; the guidance text asks for a little headroom.
+export const MIN_GAS_BNB = 0.001;
+export const RECOMMENDED_GAS_BNB = 0.003;
+
+// Turn raw RPC / wallet errors into something a first-time buyer can act on.
+export function friendlyTxError(raw) {
+  const msg = String(raw || "unknown error");
+  const m = msg.toLowerCase();
+  if (m.includes("insufficient funds for gas") || (m.includes("insufficient funds") && !m.includes("usdt"))) {
+    return (
+      "Your wallet has no BNB to pay the network fee, so the transaction could not start. " +
+      `Send at least ${RECOMMENDED_GAS_BNB} BNB to your wallet address (shown above) and try again. No funds were taken.`
+    );
+  }
+  if (m.includes("user rejected") || m.includes("user denied") || m.includes("rejected the request") || m.includes("user closed")) {
+    return "You cancelled the request in your wallet. Nothing was charged.";
+  }
+  if (m.includes("transfer amount exceeds balance") || m.includes("exceeds balance") || m.includes("insufficient balance")) {
+    return "There is not enough USDT in your wallet for this amount. Add USDT and try again.";
+  }
+  if (m.includes("insufficient allowance")) {
+    return "USDT approval is missing. Confirm the first request (Approve USDT) in your wallet, then confirm the purchase.";
+  }
+  if (m.includes("chain") && (m.includes("mismatch") || m.includes("wrong") || m.includes("unsupported"))) {
+    return "Your wallet is on a different network. Switch it to BNB Smart Chain and try again.";
+  }
+  if (m.includes("slippage")) {
+    return (
+      "Price moved to the next stage while your transaction was pending. " +
+      "No funds were taken. Please review the updated quote and try again."
+    );
+  }
+  return "Transaction failed: " + msg;
+}
+
+const fmt = (n, digits = 4) =>
+  Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: digits });
+
+const CopyAddress = ({ address }) => {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard blocked: the address is still selectable */
+    }
+  };
+  return (
+    <div className="mt-3 flex items-stretch gap-2">
+      <code
+        className="flex-1 min-w-0 truncate rounded-[10px] px-3 py-2.5 bg-secondary-8 font-mono text-[13px] text-secondary select-all"
+        title={address}
+      >
+        {address}
+      </code>
+      <button
+        type="button"
+        onClick={copy}
+        className="shrink-0 rounded-[10px] px-3.5 py-2.5 bg-primary font-chakrapetch uppercase text-[12px] font-bold text-btn-text hover:opacity-90 transition"
+      >
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </div>
+  );
+};
+
+/**
+ * Reads the connected wallet's USDT and BNB balances and tells the user,
+ * before they press Buy, whether the purchase can go through and how to fix
+ * it when it cannot. Reports readiness to the parent via onChange so the
+ * Buy button can be disabled with an explanatory label.
+ */
+const WalletReadiness = ({ account, amount, onChange }) => {
+  const address = account?.address;
+  const enabled = Boolean(address);
+  const refetch = { refetchInterval: 15000, enabled };
+
+  const bnbQ = useWalletBalance({ client, chain: presaleChain, address }, refetch);
+  const usdtQ = useWalletBalance(
+    { client, chain: presaleChain, address, tokenAddress: PAY_TOKEN.address },
+    refetch
+  );
+
+  const bnb = Number(bnbQ.data?.displayValue || 0);
+  const usdt = Number(usdtQ.data?.displayValue || 0);
+  const loading = enabled && (bnbQ.isLoading || usdtQ.isLoading);
+  const want = Number(amount) > 0 ? Number(amount) : 0;
+
+  const needBnb = !loading && bnb < MIN_GAS_BNB;
+  const needUsdt = !loading && (want > 0 ? usdt < want : usdt <= 0);
+  const missingUsdt = want > 0 ? Math.max(0, want - usdt) : 0;
+
+  const state = useMemo(() => {
+    if (!enabled) return { ok: false, label: "Connect Wallet", reason: "Please connect your wallet first." };
+    if (loading) return { ok: false, label: "Checking balance...", reason: "Checking your wallet balance, one moment." };
+    if (needUsdt && needBnb)
+      return { ok: false, label: "Add USDT & BNB to continue", reason: "Your wallet needs USDT for the purchase and a little BNB for network fees. See the steps above." };
+    if (needUsdt)
+      return { ok: false, label: "Add USDT to continue", reason: "Not enough USDT in your wallet for this amount. See the steps above." };
+    if (needBnb)
+      return { ok: false, label: "Add BNB for fees to continue", reason: `Your wallet has no BNB for network fees. Send at least ${RECOMMENDED_GAS_BNB} BNB to it first.` };
+    return { ok: true, label: "Buy Now", reason: "" };
+  }, [enabled, loading, needUsdt, needBnb]);
+
+  useEffect(() => {
+    if (onChange) onChange(state);
+  }, [state, onChange]);
+
+  if (!enabled) return null;
+
+  const boxStyle = state.ok
+    ? { borderColor: "color-mix(in srgb, var(--color-primary) 55%, transparent)", background: "color-mix(in srgb, var(--color-primary) 8%, transparent)" }
+    : { borderColor: "#F2B43C", background: "rgba(242, 180, 60, 0.10)" };
+
+  return (
+    <div className="mb-5 rounded-[18px] border-2 px-4 sm:px-5 py-4" style={boxStyle}>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <h4 className="font-chakrapetch uppercase text-sm font-bold text-secondary">
+          {loading ? "Checking your wallet..." : state.ok ? "Wallet ready" : "Action needed before you can buy"}
+        </h4>
+        {!loading && (
+          <p className="font-chakrapetch text-[13px] text-secondary-80">
+            Balance: <span className={needUsdt ? "text-[#F2B43C] font-bold" : "text-secondary font-bold"}>{fmt(usdt, 2)} USDT</span>
+            {" · "}
+            <span className={needBnb ? "text-[#F2B43C] font-bold" : "text-secondary font-bold"}>{fmt(bnb, 5)} BNB</span>
+          </p>
+        )}
+      </div>
+
+      {!loading && state.ok && (
+        <p className="mt-2 font-chakrapetch text-[13px] text-secondary-80">
+          Buying takes two confirmations in your wallet: first <b>Approve USDT</b>, then <b>Buy</b>. Network fees are paid in BNB.
+        </p>
+      )}
+
+      {!loading && !state.ok && (
+        <div className="mt-3 font-chakrapetch text-[13px] text-secondary-80 leading-relaxed">
+          {needUsdt && (
+            <p className="mb-1.5">
+              <span className="text-[#F2B43C] font-bold">USDT:</span>{" "}
+              {usdt <= 0
+                ? "this wallet has no USDT yet."
+                : `you have ${fmt(usdt, 2)} USDT but this purchase needs ${fmt(want, 2)} USDT (${fmt(missingUsdt, 2)} more).`}
+            </p>
+          )}
+          {needBnb && (
+            <p className="mb-1.5">
+              <span className="text-[#F2B43C] font-bold">BNB:</span>{" "}
+              {bnb <= 0 ? "this wallet has no BNB." : `you have ${fmt(bnb, 5)} BNB, which is not enough.`}{" "}
+              Every transaction on BNB Chain pays a small network fee in BNB — keep at least {RECOMMENDED_GAS_BNB} BNB (about a dollar).
+            </p>
+          )}
+
+          <p className="mt-3 mb-1 font-bold text-secondary uppercase text-[12px] tracking-wide">How to fund this wallet</p>
+          <ol className="list-decimal pl-5 space-y-1">
+            <li>
+              Buy {needUsdt ? "USDT" : ""}{needUsdt && needBnb ? " and " : ""}{needBnb ? "a little BNB" : ""} on any major crypto exchange (Binance, OKX, Bybit).
+            </li>
+            <li>
+              Withdraw to the address below and choose the <b>BNB Smart Chain (BEP-20)</b> network — not Ethereum or Tron.
+            </li>
+            <li>Come back here; this box updates by itself, then press Buy Now.</li>
+          </ol>
+          <CopyAddress address={address} />
+          <p className="mt-3 text-[12px] text-secondary-70">
+            Already have USDT and BNB in another wallet? Use the wallet menu at the top right to disconnect and connect that wallet instead.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default WalletReadiness;
