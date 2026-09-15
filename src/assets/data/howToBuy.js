@@ -9,7 +9,7 @@ const howToBuy = [
     number: "02",
     title: "Connect your wallet",
     description:
-      "Connect MetaMask, Trust Wallet or any WalletConnect wallet on BNB Smart Chain, or sign in with your email, which creates a wallet for you. Wallet connection needs no account registration.",
+      "Press Buy Now and pick your wallet: MetaMask, Trust Wallet, Binance Wallet or any WalletConnect wallet on BNB Smart Chain. No account registration is needed; the wallet you connect is where your BIGTR allocation is recorded.",
   },
   {
     number: "03",
