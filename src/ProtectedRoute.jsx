@@ -1,10 +1,11 @@
 import React from "react";
 import { useActiveAccount, useActiveWalletChain, useSwitchActiveWalletChain } from "thirdweb/react";
+import { Navigate } from "react-router-dom";
 import { presaleChain } from "./web3/presale";
 
-// Cuzdan baglantisi zorunlu degil: panel herkese acilir, cuzdan "Buy Now"
-// aninda baglanir. Cuzdan bagli ama yanlis agdaysa net bir uyari + tek tikla
-// ag degistirme goster.
+// The panel requires a connected wallet: without one the user lands on the
+// Connect Wallet screen, so the connection state is never ambiguous. A wallet
+// on the wrong network gets a clear warning with a one-click switch.
 const WrongNetwork = () => {
   const switchChain = useSwitchActiveWalletChain();
   return (
@@ -32,7 +33,10 @@ const ProtectedRoute = ({ children }) => {
   const account = useActiveAccount();
   const chain = useActiveWalletChain();
 
-  if (account && chain && chain.id !== presaleChain.id) {
+  if (!account) {
+    return <Navigate to="/login" replace />;
+  }
+  if (chain && chain.id !== presaleChain.id) {
     return <WrongNetwork />;
   }
   return children;

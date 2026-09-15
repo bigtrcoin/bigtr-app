@@ -15,14 +15,14 @@ export const emailWallet = inAppWallet({
   smartAccount: { chain: presaleChain, sponsorGas: SPONSOR_GAS },
 });
 
-// Order = order in the modal: email/social first for newcomers, then the
-// wallets crypto-native buyers already use. WalletConnect covers the rest.
+// Order = order in the modal: the wallets buyers already use come first
+// (MetaMask on top); email/social sign-in is offered last for newcomers.
 export const walletList = [
-  emailWallet,
   createWallet("io.metamask"),
   createWallet("com.trustwallet.app"),
   createWallet("com.binance.wallet"),
   walletConnect(),
+  emailWallet,
 ];
 
 export const wallets = walletList;

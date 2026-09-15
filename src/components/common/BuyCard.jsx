@@ -4,6 +4,7 @@ import { FaCircle } from "react-icons/fa6";
 import { useActiveAccount, useConnectModal } from "thirdweb/react";
 import { usePresale } from "../../hooks/usePresale";
 import WalletReadiness, { friendlyTxError } from "./WalletReadiness";
+import ConnectedWallet from "./ConnectedWallet";
 import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS, client, presaleChain } from "../../web3/presale";
 import { walletList } from "../../web3/wallets";
 import { BuyWidget } from "thirdweb/react";
@@ -310,6 +311,7 @@ const BuyCard = () => {
         </div>
 
         {/* Balance pre-flight: explains what is missing instead of failing later */}
+        <ConnectedWallet />
         <WalletReadiness account={account} amount={amount} onChange={setReady} />
 
         {/* Buy Now -> taze quote + slippage korumali approve + buy */}
