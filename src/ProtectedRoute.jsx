@@ -1,10 +1,10 @@
 import React from "react";
 import { useActiveAccount, useActiveWalletChain, useSwitchActiveWalletChain } from "thirdweb/react";
-import { Navigate } from "react-router-dom";
 import { presaleChain } from "./web3/presale";
 
-// Cuzdan bagli ama yanlis agdaysa kullaniciyi login'e atmak yerine
-// net bir uyari + tek tikla ag degistirme goster.
+// Cuzdan baglantisi zorunlu degil: panel herkese acilir, cuzdan "Buy Now"
+// aninda baglanir. Cuzdan bagli ama yanlis agdaysa net bir uyari + tek tikla
+// ag degistirme goster.
 const WrongNetwork = () => {
   const switchChain = useSwitchActiveWalletChain();
   return (
@@ -32,10 +32,7 @@ const ProtectedRoute = ({ children }) => {
   const account = useActiveAccount();
   const chain = useActiveWalletChain();
 
-  if (!account) {
-    return <Navigate to="/login" replace />;
-  }
-  if (chain && chain.id !== presaleChain.id) {
+  if (account && chain && chain.id !== presaleChain.id) {
     return <WrongNetwork />;
   }
   return children;

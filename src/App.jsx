@@ -1,8 +1,7 @@
 import React from "react";
-import { HashRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./ScrollToTop";
 import ProtectedRoute from "./ProtectedRoute";
-import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Leaderboard from "./pages/Leaderboard";
 import Tokenomics from "./pages/Tokenomics";
@@ -15,12 +14,13 @@ const App = () => {
     <HashRouter>
       <ScrollToTop />
       <Routes>
-        {/* Public */}
-        <Route path="/login" element={<Login />} />
+        {/* Eski cuzdan kapisi kaldirildi: /login artik dogrudan satin alma paneline gider */}
+        <Route path="/login" element={<Navigate to="/" replace />} />
 
-        {/* Protected */}
-        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-        <Route path="/buy" element={<ProtectedRoute><Buy /></ProtectedRoute>} />
+        {/* Satin alma paneli ana sayfadir: sitedeki "Buy Now" buraya iner */}
+        <Route path="/" element={<ProtectedRoute><Buy /></ProtectedRoute>} />
+        <Route path="/buy" element={<Navigate to="/" replace />} />
+        <Route path="/overview" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
         <Route path="/tokenomics" element={<ProtectedRoute><Tokenomics /></ProtectedRoute>} />

@@ -68,7 +68,7 @@ const Banner = () => {
 
           <div className="mt-8 sm:mt-10 flex items-center gap-5 xl:gap-12 flex-wrap">
             <NavLink
-              to="/buy"
+              to="/"
               className="aizon-btn py-3.75 w-55 h-13.75 rounded-[15px] bg-primary uppercase font-chakrapetch text-base font-bold text-btn-text"
             >
               <span className="btn-inner">

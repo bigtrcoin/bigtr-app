@@ -9,12 +9,12 @@ import {
 
 const sidebarMenu = [
   {
-    url: "/",
+    url: "/overview",
     title: "Pre-sale Overview",
     icon: TbSmartHome,
   },
   {
-    url: "/buy",
+    url: "/",
     title: "Buy Now",
     icon: TbTrendingUp,
   },

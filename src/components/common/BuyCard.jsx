@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { FaCircle } from "react-icons/fa6";
-import { useActiveAccount } from "thirdweb/react";
+import { useActiveAccount, useConnectModal } from "thirdweb/react";
 import { usePresale } from "../../hooks/usePresale";
 import WalletReadiness, { friendlyTxError } from "./WalletReadiness";
 import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS, client, presaleChain } from "../../web3/presale";
@@ -16,6 +16,21 @@ const fromUnits = (v, dec = 18) => {
 
 const BuyCard = () => {
   const account = useActiveAccount();
+  // Cuzdan bagli degilse "Buy Now" once baglanti penceresini acar; baglanti
+  // gelince alim ayni tikla devam eder (pendingBuy).
+  const { connect, isConnecting } = useConnectModal();
+  const [pendingBuy, setPendingBuy] = useState(false);
+  const openConnect = useCallback(
+    () =>
+      connect({
+        client,
+        chain: presaleChain,
+        theme: "dark",
+        size: "compact",
+        showThirdwebBranding: false,
+      }),
+    [connect]
+  );
   const {
     price,
     stageIndex,
@@ -72,12 +87,8 @@ const BuyCard = () => {
     };
   }, [amount, quote]);
 
-  const handleBuy = useCallback(async () => {
+  const runBuy = useCallback(async () => {
     setStatus("");
-    if (!account) {
-      setStatus("Please connect your wallet first.");
-      return;
-    }
     if (!amount || Number(amount) <= 0) {
       setStatus("Please enter a valid amount.");
       return;
@@ -95,14 +106,51 @@ const BuyCard = () => {
     } catch (e) {
       setStatus(friendlyTxError(e?.message));
     }
-  }, [account, amount, buy, ready]);
+  }, [amount, buy, ready]);
+
+  const handleBuy = useCallback(async () => {
+    setStatus("");
+    if (!amount || Number(amount) <= 0) {
+      setStatus("Please enter a valid amount.");
+      return;
+    }
+    if (account) {
+      await runBuy();
+      return;
+    }
+    // Cuzdan yok: baglanti penceresini ac, baglaninca alimi surdur.
+    try {
+      setStatus("Connect your wallet to continue the purchase...");
+      await openConnect();
+      setPendingBuy(true);
+    } catch {
+      setStatus("Wallet connection was cancelled. Click Buy Now to try again.");
+    }
+  }, [account, amount, runBuy, openConnect]);
+
+  // Baglanti tamamlanip account geldiginde bekleyen alimi calistir.
+  // WalletReadiness once bakiyeyi kontrol eder; sonucu bekle, sonra devam et.
+  useEffect(() => {
+    if (!pendingBuy || !account) return;
+    if (ready.label === "Connect Wallet" || ready.label === "Checking balance...") return;
+    setPendingBuy(false);
+    if (!ready.ok) {
+      setStatus(ready.reason);
+      return;
+    }
+    runBuy();
+  }, [pendingBuy, account, ready, runBuy]);
 
   // Kredi karti: thirdweb BuyWidget -> kullanici KENDI cuzdanina USDT alir, sonra normal Buy Now.
   // (Kontrat hicbir zaman kart saglayicisi tarafindan cagrilmaz; alokasyon daima alicinin cuzdanina yazilir.)
   const [cardOpen, setCardOpen] = useState(false);
-  const handleCard = () => {
+  const handleCard = async () => {
     if (!account) {
-      setStatus("Connect your wallet first - the USDT you buy will be sent to it.");
+      try {
+        await openConnect();
+      } catch {
+        setStatus("Wallet connection was cancelled.");
+      }
       return;
     }
     setCardOpen(true);
@@ -113,7 +161,11 @@ const BuyCard = () => {
   const [transakBusy, setTransakBusy] = useState(false);
   const handleTransak = async () => {
     if (!account) {
-      setStatus("Connect your wallet first - the USDT you buy will be sent to it.");
+      try {
+        await openConnect();
+      } catch {
+        setStatus("Wallet connection was cancelled.");
+      }
       return;
     }
     try {
@@ -260,15 +312,15 @@ const BuyCard = () => {
         <div className="mb-5">
           <button
             onClick={handleBuy}
-            disabled={isBuying || soldOut || !ready.ok}
+            disabled={isBuying || isConnecting || soldOut || (account && !ready.ok)}
             className="aizon-btn w-full rounded-[18px] px-3 py-5 md:py-7.5 bg-primary font-chakrapetch uppercase text-[18px] leading-none font-bold text-btn-text disabled:opacity-60"
           >
             <span className="btn-inner">
               <span className="btn-normal-text">
-                {soldOut ? "Sold Out" : isBuying ? "Processing..." : ready.label}
+                {soldOut ? "Sold Out" : isBuying ? "Processing..." : isConnecting ? "Connecting..." : !account ? "Buy Now" : ready.label}
               </span>
               <span className="btn-hover-text">
-                {soldOut ? "Sold Out" : isBuying ? "Processing..." : ready.label}
+                {soldOut ? "Sold Out" : isBuying ? "Processing..." : isConnecting ? "Connecting..." : !account ? "Buy Now" : ready.label}
               </span>
             </span>
           </button>
