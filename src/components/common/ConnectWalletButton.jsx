@@ -1,6 +1,7 @@
 import { ConnectButton } from "thirdweb/react";
 import { useAizonData } from "../../utils/AizonContext";
-import { client, presaleChain, walletList } from "../../web3/presale";
+import { client, presaleChain } from "../../web3/presale";
+import { walletList } from "../../web3/wallets";
 
 const ConnectWalletButton = () => {
   const { themeMode } = useAizonData();
@@ -13,7 +14,7 @@ const ConnectWalletButton = () => {
         wallets={walletList}
         showAllWallets={true}
         theme={themeMode === "dark" ? "dark" : "light"}
-        connectModal={{ showThirdwebBranding: false, size: "compact", title: "Connect your wallet" }}
+        connectModal={{ showThirdwebBranding: false, size: "compact", title: "Sign in or connect a wallet" }}
         detailsModal={{ showThirdwebBranding: false }}
       />
     </div>

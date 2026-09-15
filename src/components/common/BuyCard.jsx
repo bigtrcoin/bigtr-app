@@ -4,7 +4,8 @@ import { FaCircle } from "react-icons/fa6";
 import { useActiveAccount, useConnectModal } from "thirdweb/react";
 import { usePresale } from "../../hooks/usePresale";
 import WalletReadiness, { friendlyTxError } from "./WalletReadiness";
-import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS, client, presaleChain, walletList } from "../../web3/presale";
+import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS, client, presaleChain } from "../../web3/presale";
+import { walletList } from "../../web3/wallets";
 import { BuyWidget } from "thirdweb/react";
 import { Bridge, toUnits } from "thirdweb";
 
@@ -29,7 +30,7 @@ const BuyCard = () => {
         showAllWallets: true,
         theme: "dark",
         size: "compact",
-        title: "Connect your wallet",
+        title: "Sign in or connect a wallet",
         showThirdwebBranding: false,
       }),
     [connect]

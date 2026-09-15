@@ -14,6 +14,7 @@ import { useCallback } from "react";
 import {
     useActiveAccount,
     useReadContract,
+    useSendBatchTransaction,
     useSendTransaction,
 } from "thirdweb/react";
 import { getContract, prepareContractCall, readContract, toUnits } from "thirdweb";
@@ -48,6 +49,9 @@ function useReadIfConfigured(method, params) {
 export function usePresale() {
     const account = useActiveAccount();
     const { mutateAsync: sendTx, isPending } = useSendTransaction({ payModal: false });
+    // Smart accounts (email/social sign-in) can bundle approve + buy into one
+    // confirmation; plain wallets fall back to two sequential transactions.
+    const { mutateAsync: sendBatch, isPending: isBatchPending } = useSendBatchTransaction();
 
   const { data: price } = useReadIfConfigured("function currentPrice() view returns (uint256)");
     const { data: stageIndex } = useReadIfConfigured("function currentStageIndex() view returns (uint256)");
@@ -105,23 +109,28 @@ export function usePresale() {
                     params: [account.address, presaleContract.address],
           });
 
+          const txs = [];
           if (current < payAmount) {
-                    const approveTx = prepareContractCall({
+                    txs.push(prepareContractCall({
                                 contract: payToken,
                                 method: "function approve(address,uint256) returns (bool)",
                                 params: [presaleContract.address, payAmount],
-                    });
-                    await sendTx(approveTx);
+                    }));
           }
-
-          const buyTx = prepareContractCall({
+          txs.push(prepareContractCall({
                     contract: presaleContract,
                     method: "function buy(address,uint256,uint256)",
                     params: [payTokenAddress, payAmount, minTokensOut],
-          });
-                return await sendTx(buyTx);
+          }));
+
+          if (txs.length > 1 && typeof account.sendBatchTransaction === "function") {
+                    return await sendBatch(txs);
+          }
+          let receipt;
+          for (const tx of txs) receipt = await sendTx(tx);
+          return receipt;
         },
-        [account, sendTx]
+        [account, sendTx, sendBatch]
       );
 
   return {
@@ -138,6 +147,6 @@ export function usePresale() {
         allocated,
         quote,
         buy,
-        isBuying: isPending,
+        isBuying: isPending || isBatchPending,
   };
 }
