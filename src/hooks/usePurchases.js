@@ -1,6 +1,7 @@
 // src/hooks/usePurchases.js
 // Live purchase list for the transaction/leaderboard views.
-// Primary source: thirdweb Insight queried directly from the browser — the
+// Primary source: thirdweb Insight queried directly from the browser (events
+// and transactions merged, gaps filled from receipts) — the
 // client ID is domain-restricted, so it authenticates from app.bigtrcoin.com
 // but NOT from a server (which is why /api/purchases used to come back empty).
 // Fallback: /api/purchases (works once a server-side key is configured there).
@@ -36,27 +37,136 @@ function parseEvent(e) {
   };
 }
 
-async function viaInsight() {
-  if (!CLIENT_ID || CLIENT_ID === "MISSING_CLIENT_ID") throw new Error("no client id");
-  const out = [];
+const INSIGHT = "https://insight.thirdweb.com/v1";
+const INSIGHT_HEADERS = () => ({ "x-client-id": CLIENT_ID });
+
+// Public BSC endpoints used only to read receipts of purchases that the
+// Insight event index is missing (see viaInsight).
+const RECEIPT_RPCS = [
+  "https://bsc-dataseed.bnbchain.org",
+  "https://bsc-dataseed1.binance.org",
+  "https://bsc-rpc.publicnode.com",
+];
+
+// Purchased logs of a buy() tx, read straight from its receipt. Confirmed
+// receipts never change, so results are kept in localStorage.
+const RECEIPT_CACHE_KEY = "bigtr_purchase_receipts_v1";
+function loadReceiptCache() {
+  try {
+    return JSON.parse(localStorage.getItem(RECEIPT_CACHE_KEY) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+function saveReceiptCache(cache) {
+  try {
+    localStorage.setItem(RECEIPT_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    /* storage unavailable: receipts are simply fetched again next time */
+  }
+}
+
+async function purchaseLogsFromReceipt(txHash) {
+  for (const url of RECEIPT_RPCS) {
+    try {
+      const r = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_getTransactionReceipt",
+          params: [txHash],
+        }),
+      });
+      const j = await r.json();
+      if (!j || !j.result) continue;
+      return (j.result.logs || [])
+        .filter(
+          (l) =>
+            l.address &&
+            l.address.toLowerCase() === PRESALE.toLowerCase() &&
+            l.topics &&
+            l.topics[0] === TOPIC0
+        )
+        .map((l) => ({ topics: l.topics, data: l.data }));
+    } catch {
+      /* try the next endpoint */
+    }
+  }
+  return null; // unknown for now; retried on the next refresh
+}
+
+async function insightPages(path, extra) {
+  const rows = [];
   for (let page = 0; page < 20; page++) {
     const url =
-      `https://insight.thirdweb.com/v1/events/${PRESALE}` +
+      `${INSIGHT}/${path}/${PRESALE}` +
       `?chain=${CHAIN_ID}&limit=500&page=${page}` +
       `&filter_block_number_gte=${DEPLOY_BLOCK}` +
-      `&filter_topic_0=${TOPIC0}` +
+      extra +
       `&sort_by=block_number&sort_order=desc`;
-    const r = await fetch(url, { headers: { "x-client-id": CLIENT_ID } });
+    const r = await fetch(url, { headers: INSIGHT_HEADERS() });
     if (!r.ok) throw new Error("insight http " + r.status);
     const j = await r.json();
-    const rows = j.data || [];
-    for (const e of rows) {
-      if (!e.topics || e.topics[0] !== TOPIC0) continue;
-      out.push(parseEvent(e));
-    }
-    if (rows.length < 500) break;
+    const data = j.data || [];
+    rows.push(...data);
+    if (data.length < 500) break;
   }
-  return out;
+  return rows;
+}
+
+// Insight's event index is incomplete for this contract: some confirmed
+// purchases are missing from /events but present in /transactions (and the
+// other way round). Both lists are merged; a buy tx that has no indexed event
+// is decoded from its on-chain receipt, so every purchase shows up.
+async function viaInsight() {
+  if (!CLIENT_ID || CLIENT_ID === "MISSING_CLIENT_ID") throw new Error("no client id");
+
+  const [evRes, txRes] = await Promise.allSettled([
+    insightPages("events", `&filter_topic_0=${TOPIC0}`),
+    insightPages("transactions", ""),
+  ]);
+  if (evRes.status === "rejected" && txRes.status === "rejected") throw evRes.reason;
+
+  const byTx = new Map();
+  for (const e of evRes.status === "fulfilled" ? evRes.value : []) {
+    if (!e.topics || e.topics[0] !== TOPIC0) continue;
+    const p = parseEvent(e);
+    byTx.set(`${p.tx.toLowerCase()}:${e.log_index ?? 0}`, p);
+  }
+  const seenTx = new Set([...byTx.values()].map((p) => p.tx.toLowerCase()));
+
+  const missing = (txRes.status === "fulfilled" ? txRes.value : []).filter(
+    (t) => Number(t.status) === 1 && t.hash && !seenTx.has(t.hash.toLowerCase())
+  );
+  if (missing.length) {
+    const cache = loadReceiptCache();
+    let dirty = false;
+    await Promise.all(
+      missing.map(async (t) => {
+        const key = t.hash.toLowerCase();
+        let logs = cache[key];
+        if (!logs) {
+          logs = await purchaseLogsFromReceipt(t.hash);
+          if (!logs) return;
+          cache[key] = logs;
+          dirty = true;
+        }
+        logs.forEach((l, i) => {
+          const p = parseEvent({
+            ...l,
+            transaction_hash: t.hash,
+            block_number: t.block_number,
+            block_timestamp: t.block_timestamp,
+          });
+          byTx.set(`${key}:r${i}`, p);
+        });
+      })
+    );
+    if (dirty) saveReceiptCache(cache);
+  }
+  return [...byTx.values()];
 }
 
 async function viaApi() {
