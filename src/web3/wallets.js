@@ -14,11 +14,16 @@ import { presaleChain } from "./presale";
 // Set VITE_SPONSOR_GAS=false in Vercel to switch sponsorship off without a code change.
 export const SPONSOR_GAS = import.meta.env.VITE_SPONSOR_GAS !== "false";
 
-// Safety switch: VITE_SMART_ACCOUNT_FOR_ALL=false in Vercel puts external
-// wallets back on plain EOAs (buyers then pay their own gas again) without a
-// code change or redeploy of the app itself.
+// Smart accounts (and therefore sponsored gas) need thirdweb's mainnet
+// bundler + paymaster, which are only served once billing is enabled on the
+// thirdweb account. Until then every smart-account transaction is rejected
+// with "Mainnets not enabled for this account", so the default is OFF: buyers
+// use plain wallets and pay their own gas, which always works.
+//
+// Turn it on with VITE_SMART_ACCOUNT_FOR_ALL=true in Vercel AFTER billing is
+// enabled; VITE_SPONSOR_GAS=false disables sponsorship on its own.
 export const SMART_ACCOUNT_FOR_ALL =
-  import.meta.env.VITE_SMART_ACCOUNT_FOR_ALL !== "false";
+  import.meta.env.VITE_SMART_ACCOUNT_FOR_ALL === "true";
 
 // Passed to every connect modal / ConnectButton so the smart account (and its
 // gas sponsorship) applies to all wallets, not just email sign-in.
