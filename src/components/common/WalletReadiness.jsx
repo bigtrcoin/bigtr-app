@@ -197,12 +197,14 @@ const WalletReadiness = ({ account, amount, onChange }) => {
       {!loading && state.ok && (
         <p className="mt-2 font-chakrapetch text-[13px] text-secondary-80">
           {topUpNeeded
-            ? `Two confirmations: first your wallet moves ${fmt(topUp, 2)} USDT to your BigTR address, then the purchase runs with no network fee.`
+            ? `Your USDT is in the wallet you signed in with, so the purchase first moves ${fmt(topUp, 2)} USDT to your BigTR address — that one transfer is signed by your wallet and costs a few cents of BNB from it. To avoid any BNB, withdraw USDT from your exchange straight to the BigTR address instead; purchases from there are free of network fees.`
             : sponsored
             ? "One confirmation and you are done — BigTR pays the network fee for you."
             : <>Buying takes two confirmations in your wallet: first <b>Approve USDT</b>, then <b>Buy</b>. Network fees are paid in BNB.</>}
         </p>
       )}
+
+      {!loading && state.ok && topUpNeeded && <DepositAddress address={address} />}
 
       {!loading && !state.ok && (
         <div className="mt-3 font-chakrapetch text-[13px] text-secondary-80 leading-relaxed">
