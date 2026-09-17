@@ -243,21 +243,29 @@ export default function usePurchases() {
       .map((x) => ({ walletAddress: x.walletAddress, totalAmount: Math.round(x.total) }));
   }, [raw]);
 
+  // A buyer can own purchases under more than one address (smart account +
+  // the signer wallet used before the smart-account switch), so these accept
+  // a single address or a list.
+  const asSet = (address) => {
+    const list = Array.isArray(address) ? address : [address];
+    return new Set(list.filter(Boolean).map((a) => a.toLowerCase()));
+  };
+
   const myTransactions = (address) => {
-    if (!address) return [];
-    const a = address.toLowerCase();
-    return transactions.filter((t) => t.walletAddress.toLowerCase() === a);
+    const set = asSet(address);
+    if (!set.size) return [];
+    return transactions.filter((t) => set.has(t.walletAddress.toLowerCase()));
   };
 
   // Numeric totals for one wallet: USDT actually paid and BIGTR bought.
   // "paid" is the real investment figure (sum of Purchased.paid), independent
   // of the current stage price.
   const myTotals = (address) => {
-    if (!address) return { paid: 0, tokens: 0, count: 0 };
-    const a = address.toLowerCase();
+    const set = asSet(address);
+    if (!set.size) return { paid: 0, tokens: 0, count: 0 };
     let paid = 0, tokens = 0, count = 0;
     for (const p of raw) {
-      if (p.buyer.toLowerCase() !== a) continue;
+      if (!set.has(p.buyer.toLowerCase())) continue;
       paid += p.paid; tokens += p.tokens; count += 1;
     }
     return { paid, tokens, count };

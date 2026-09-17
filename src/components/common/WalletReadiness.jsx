@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useActiveWallet, useWalletBalance } from "thirdweb/react";
 import { QRCodeSVG } from "qrcode.react";
 import { PAY_TOKEN, client, presaleChain } from "../../web3/presale";
-import { isSponsoredWallet } from "../../web3/wallets";
+import { SMART_ACCOUNT_FOR_ALL, isSponsoredWallet } from "../../web3/wallets";
 
 // Minimum native balance we require from self-custody wallets before letting
 // the user try to buy. Two transactions (approve + buy) cost well under
@@ -197,7 +197,9 @@ const WalletReadiness = ({ account, amount, onChange }) => {
           </ol>
           <DepositAddress address={address} />
           <p className="mt-3 text-[12px] text-secondary-70">
-            Already have USDT in another wallet? Use the wallet menu at the top right to disconnect and connect that wallet instead.
+            {SMART_ACCOUNT_FOR_ALL
+              ? "This is your BigTR pre-sale address. USDT held anywhere else - including in the wallet you signed in with - has to be sent here first."
+              : "Already have USDT in another wallet? Use the wallet menu at the top right to disconnect and connect that wallet instead."}
           </p>
         </div>
       )}

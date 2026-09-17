@@ -11,10 +11,14 @@ const fromUnits = (v, dec = 18) =>
 
 const WalletInfo = () => {
   const account = useActiveAccount();
-  const { allocated } = usePresale();
+  const { allocated, allocatedSigner, signerAddress } = usePresale();
 
   const walletAddress = account?.address || "";
-  const myAllocation = fromUnits(allocated, TOKEN_DECIMALS);
+  // Purchases made before the smart-account switch sit on the signer wallet,
+  // so both allocations are shown together.
+  const smartAllocation = fromUnits(allocated, TOKEN_DECIMALS);
+  const signerAllocation = fromUnits(allocatedSigner, TOKEN_DECIMALS);
+  const myAllocation = smartAllocation + signerAllocation;
 
   const [copied, setCopied] = useState(false);
   const copyToClipboard = () => {
@@ -64,6 +68,14 @@ const WalletInfo = () => {
         <h3 className="uppercase font-chakrapetch text-3xl 2xl:text-4xl font-bold text-primary">
           {myAllocation.toLocaleString()} <span className="text-secondary">BIGTR</span>
         </h3>
+        {signerAllocation > 0 && (
+          <p className="mt-2 font-chakrapetch text-sm text-secondary-80">
+            Includes {signerAllocation.toLocaleString()} BIGTR bought earlier with your
+            signed-in wallet {signerAddress ? signerAddress.slice(0, 6) + "..." + signerAddress.slice(-4) : ""}, plus{" "}
+            {smartAllocation.toLocaleString()} BIGTR on the address above. Both belong to you and are
+            distributed together.
+          </p>
+        )}
         <p className="mt-2 font-chakrapetch text-sm text-secondary-80">
           Coins are distributed 50% in month 1, 25% in month 2 and 25% in month 3 after the first Tier-1 crypto exchange listing. Exact claim timing and release mechanics will be announced before deployment.
         </p>

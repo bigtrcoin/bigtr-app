@@ -153,6 +153,7 @@ const AizonContextProvider = ({ children }) => {
     totalRaised: cRaised,
     totalTokensSold: cSold,
     allocated: cAllocated,
+    allocatedSigner: cAllocatedSigner,
   } = usePresale();
 
   const live = configured;
@@ -168,8 +169,12 @@ const AizonContextProvider = ({ children }) => {
     ? Math.min(100, Number(((tokenSold / PRESALE_CAP) * 100).toFixed(2)))
     : 0;
   const goalUsd = 7820000;
+  // Allocation of the smart account plus the signer wallet (purchases made
+  // before the smart-account switch live on the signer address).
   const userTokenBalance =
-    live && cAllocated ? Number(cAllocated) / 10 ** TOKEN_DECIMALS : 0;
+    live
+      ? (Number(cAllocated || 0n) + Number(cAllocatedSigner || 0n)) / 10 ** TOKEN_DECIMALS
+      : 0;
   const [purchaseBonus] = useState(0);
   const [referralBonus] = useState(0);
   const [referralBonusPay] = useState(0);

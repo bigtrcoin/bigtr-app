@@ -1,18 +1,39 @@
 // src/web3/wallets.js
 // One wallet list shared by every connect modal so auto-connect restores the
-// same configuration. Email/social sign-in creates a smart account on the
-// presale chain with sponsored gas: those buyers never need BNB and confirm
-// approve + buy in a single step. External wallets stay plain EOAs and follow
-// the usual approve + buy flow.
+// same configuration.
+//
+// EVERY connection - MetaMask, Trust, Binance, WalletConnect and email/social
+// alike - runs through a smart account on the presale chain whose gas BigTR
+// sponsors (accountAbstraction below). Buyers therefore never need BNB: USDT
+// is the only asset they have to hold, and approve + buy are confirmed in one
+// step. The connected wallet is only the signer; the address shown in the app
+// (and the address USDT must be sent to) is the smart account.
 import { inAppWallet, createWallet, walletConnect } from "thirdweb/wallets";
 import { presaleChain } from "./presale";
 
 // Set VITE_SPONSOR_GAS=false in Vercel to switch sponsorship off without a code change.
 export const SPONSOR_GAS = import.meta.env.VITE_SPONSOR_GAS !== "false";
 
+// Safety switch: VITE_SMART_ACCOUNT_FOR_ALL=false in Vercel puts external
+// wallets back on plain EOAs (buyers then pay their own gas again) without a
+// code change or redeploy of the app itself.
+export const SMART_ACCOUNT_FOR_ALL =
+  import.meta.env.VITE_SMART_ACCOUNT_FOR_ALL !== "false";
+
+// Passed to every connect modal / ConnectButton so the smart account (and its
+// gas sponsorship) applies to all wallets, not just email sign-in.
+export const accountAbstraction = SMART_ACCOUNT_FOR_ALL
+  ? { chain: presaleChain, sponsorGas: SPONSOR_GAS }
+  : undefined;
+
+// Smart-account wrapping is applied globally through accountAbstraction, so
+// this wallet must NOT define its own smartAccount (that would nest one smart
+// account inside another).
 export const emailWallet = inAppWallet({
   auth: { options: ["email", "google", "apple", "phone"] },
-  smartAccount: { chain: presaleChain, sponsorGas: SPONSOR_GAS },
+  ...(SMART_ACCOUNT_FOR_ALL
+    ? {}
+    : { smartAccount: { chain: presaleChain, sponsorGas: SPONSOR_GAS } }),
 });
 
 // The main connect modal lists ONLY self-custody wallets, MetaMask first: as
@@ -31,5 +52,7 @@ export const emailWalletList = [emailWallet];
 export const walletList = externalWallets;
 export const wallets = externalWallets;
 
-// True when the active wallet is the email/social wallet whose fees we sponsor.
-export const isSponsoredWallet = (wallet) => SPONSOR_GAS && wallet?.id === "inApp";
+// With smart accounts for everyone, sponsorship applies to every connection;
+// with the safety switch off, only the email/social wallet is sponsored.
+export const isSponsoredWallet = (wallet) =>
+  SPONSOR_GAS && (SMART_ACCOUNT_FOR_ALL || wallet?.id === "inApp");

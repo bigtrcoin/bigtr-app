@@ -13,6 +13,7 @@
 import { useCallback } from "react";
 import {
     useActiveAccount,
+    useActiveWallet,
     useReadContract,
     useSendBatchTransaction,
     useSendTransaction,
@@ -63,6 +64,22 @@ export function usePresale() {
     const { data: allocated } = useReadIfConfigured(
           "function tokensAllocated(address) view returns (uint256)",
           account ? [account.address] : undefined
+        );
+    // Purchases made before the smart-account switch sit on the signer wallet
+    // address, so that allocation is read as well and shown alongside.
+    const wallet = useActiveWallet();
+    let signerAddress = null;
+    try {
+          const admin = wallet?.getAdminAccount?.();
+          if (admin && admin.address && admin.address.toLowerCase() !== account?.address?.toLowerCase()) {
+                signerAddress = admin.address;
+          }
+    } catch {
+          signerAddress = null;
+    }
+    const { data: allocatedSigner } = useReadIfConfigured(
+          "function tokensAllocated(address) view returns (uint256)",
+          signerAddress ? [signerAddress] : undefined
         );
     // Active stage (price, cap) info. When the sale is fully over stageIndex ==
   // stagesCount and stages(idx) reverts, hence the bounds check.
@@ -145,6 +162,8 @@ export function usePresale() {
         totalTokensSold,
         totalRaised,
         allocated,
+        allocatedSigner,
+        signerAddress,
         quote,
         buy,
         isBuying: isPending || isBatchPending,

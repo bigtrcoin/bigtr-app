@@ -6,7 +6,7 @@ import { usePresale } from "../../hooks/usePresale";
 import WalletReadiness, { friendlyTxError } from "./WalletReadiness";
 import ConnectedWallet from "./ConnectedWallet";
 import { PAY_TOKEN, STABLE_DECIMALS, TOKEN_DECIMALS, client, presaleChain } from "../../web3/presale";
-import { walletList } from "../../web3/wallets";
+import { walletList, accountAbstraction } from "../../web3/wallets";
 import { BuyWidget } from "thirdweb/react";
 import { Bridge, toUnits } from "thirdweb";
 
@@ -26,6 +26,7 @@ const BuyCard = () => {
     () =>
       connect({
         client,
+        accountAbstraction,
         chain: presaleChain,
         wallets: walletList,
         showAllWallets: true,

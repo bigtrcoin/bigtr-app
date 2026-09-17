@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import { useAizonData } from "../../utils/AizonContext";
 import usePurchases from "../../hooks/usePurchases";
-import { useActiveAccount } from "thirdweb/react";
+import useMyAddresses from "../../hooks/useMyAddresses";
 
 import EthScanImg from "../../assets/images/chains/ethscan.svg?react";
 import { FaArrowRight } from "react-icons/fa6";
 
 const MyTransactions = () => {
   const { tokenSymbol } = useAizonData();
-  const account = useActiveAccount();
-  const address = account?.address;
+  const { addresses } = useMyAddresses();
   const { myTransactions } = usePurchases();
-  const Data = myTransactions(address);
+  const Data = myTransactions(addresses);
 
   return (
     <div className="rounded-[15px] overflow-hidden mb-6.25 relative bg-card">

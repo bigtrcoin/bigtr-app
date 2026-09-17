@@ -1,8 +1,8 @@
 import React from "react";
-import { useActiveAccount } from "thirdweb/react";
 import StatusCardItem from "../common/StatusCardItem";
 import { useAizonData } from "../../utils/AizonContext";
 import usePurchases from "../../hooks/usePurchases";
+import useMyAddresses from "../../hooks/useMyAddresses";
 
 import StatusImg1 from "../../assets/images/status/wallet.svg?react";
 import StatusImg2 from "../../assets/images/status/invested.svg?react";
@@ -10,13 +10,13 @@ import StatusImg3 from "../../assets/images/status/launch.svg?react";
 
 const StatusCard = () => {
   const { formatNumber, userTokenBalance, listingPrice } = useAizonData();
-  const account = useActiveAccount();
+  const { addresses } = useMyAddresses();
   const { myTotals } = usePurchases();
 
   // "Total Invested" = USDT the wallet actually paid (sum of its Purchased
   // events), NOT tokens x current stage price — that figure grows with every
   // stage and would overstate early buyers' investment.
-  const { paid } = myTotals(account?.address);
+  const { paid } = myTotals(addresses);
 
   const StatusData = [
     {

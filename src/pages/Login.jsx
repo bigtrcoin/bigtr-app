@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ConnectButton, useActiveAccount, useConnectModal } from "thirdweb/react";
 import { Navigate } from "react-router-dom";
 import { client, presaleChain } from "../web3/presale";
-import { externalWallets, emailWalletList } from "../web3/wallets";
+import { accountAbstraction, externalWallets, emailWalletList } from "../web3/wallets";
 
 const Login = () => {
   const account = useActiveAccount();
@@ -22,6 +22,7 @@ const Login = () => {
         client,
         chain: presaleChain,
         wallets: emailWalletList,
+        accountAbstraction,
         theme: "dark",
         size: "compact",
         title: "Sign in with email",
@@ -84,6 +85,7 @@ const Login = () => {
           client={client}
           chain={presaleChain}
           wallets={externalWallets}
+          accountAbstraction={accountAbstraction}
           theme="dark"
           connectModal={{ showThirdwebBranding: false, size: "compact", title: "Connect your wallet" }}
           detailsModal={{ showThirdwebBranding: false }}
@@ -102,6 +104,9 @@ const Login = () => {
         />
         <p className="font-onest text-xs text-secondary text-center" style={{ opacity: 0.55 }}>
           MetaMask · Trust Wallet · Binance Wallet · WalletConnect
+        </p>
+        <p className="font-onest text-xs text-center text-primary" style={{ opacity: 0.85 }}>
+          No BNB needed — BigTR covers the network fees. You only need USDT.
         </p>
         <button
           type="button"
