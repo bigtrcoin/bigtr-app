@@ -1,7 +1,7 @@
 import { ConnectButton } from "thirdweb/react";
 import { useAizonData } from "../../utils/AizonContext";
 import { client, presaleChain } from "../../web3/presale";
-import { accountAbstraction, walletList } from "../../web3/wallets";
+import { accountAbstraction, connectWallets } from "../../web3/wallets";
 
 const ConnectWalletButton = () => {
   const { themeMode } = useAizonData();
@@ -11,7 +11,7 @@ const ConnectWalletButton = () => {
       <ConnectButton
         client={client}
         chain={presaleChain}
-        wallets={walletList}
+        wallets={connectWallets()}
         accountAbstraction={accountAbstraction}
         showAllWallets={true}
         theme={themeMode === "dark" ? "dark" : "light"}

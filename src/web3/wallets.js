@@ -49,6 +49,30 @@ export const externalWallets = [
 
 export const emailWalletList = [emailWallet];
 
+// On a phone there is no wallet extension: tapping MetaMask can only hand the
+// browser over to the MetaMask app, which many buyers never come back from.
+// E-mail sign-in works in any mobile browser and is sponsored, so on mobile
+// (without an injected wallet) it is offered first in the same modal.
+export const isMobileBrowser = () =>
+  typeof navigator !== "undefined" &&
+  /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+export const hasInjectedWallet = () =>
+  typeof window !== "undefined" && typeof window.ethereum !== "undefined";
+
+export const connectWallets = () =>
+  isMobileBrowser() && !hasInjectedWallet()
+    ? [emailWallet, ...externalWallets]
+    : externalWallets;
+
+// Deep link that reopens this page inside the MetaMask app's own browser,
+// where the wallet is injected and the normal flow works.
+export const metamaskAppLink = () => {
+  if (typeof window === "undefined") return "https://metamask.app.link";
+  const { host, pathname, hash } = window.location;
+  return `https://metamask.app.link/dapp/${host}${pathname}${hash}`;
+};
+
 export const walletList = externalWallets;
 export const wallets = externalWallets;
 

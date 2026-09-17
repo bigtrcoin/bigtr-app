@@ -2,12 +2,23 @@ import React, { useState } from "react";
 import { ConnectButton, useActiveAccount, useConnectModal } from "thirdweb/react";
 import { Navigate } from "react-router-dom";
 import { client, presaleChain } from "../web3/presale";
-import { accountAbstraction, externalWallets, emailWalletList } from "../web3/wallets";
+import {
+  accountAbstraction,
+  externalWallets,
+  emailWalletList,
+  hasInjectedWallet,
+  isMobileBrowser,
+  metamaskAppLink,
+} from "../web3/wallets";
 
 const Login = () => {
   const account = useActiveAccount();
   const { connect } = useConnectModal();
   const [emailBusy, setEmailBusy] = useState(false);
+  // On a phone with no wallet extension, tapping a wallet can only hand the
+  // browser over to that wallet's app. E-mail sign-in works right here, so it
+  // leads on mobile and the wallet list moves below it.
+  const mobileFirst = isMobileBrowser() && !hasInjectedWallet();
 
   if (account) {
     return <Navigate to="/" replace />;
@@ -81,6 +92,32 @@ const Login = () => {
             Connect your wallet to access the pre-sale panel
           </p>
         </div>
+        {mobileFirst && (
+          <>
+            <button
+              type="button"
+              onClick={signInWithEmail}
+              disabled={emailBusy}
+              className="w-full rounded-[14px] px-4 py-4 bg-primary font-onest font-bold text-btn-text hover:opacity-90 transition disabled:opacity-40"
+              style={{ fontSize: "16px" }}
+            >
+              {emailBusy ? "Opening..." : "Continue with e-mail"}
+            </button>
+            <p className="font-onest text-xs text-secondary text-center" style={{ opacity: 0.6, marginTop: "-8px" }}>
+              Works on any phone — no wallet app, no BNB. A secure wallet is created for you.
+            </p>
+            <a
+              href={metamaskAppLink()}
+              className="font-onest text-sm text-secondary underline underline-offset-4"
+              style={{ opacity: 0.6 }}
+            >
+              Already use MetaMask? Open this page in the MetaMask app
+            </a>
+            <p className="font-onest text-xs text-secondary text-center" style={{ opacity: 0.45 }}>
+              or connect a wallet below
+            </p>
+          </>
+        )}
         <ConnectButton
           client={client}
           chain={presaleChain}
@@ -108,15 +145,17 @@ const Login = () => {
         <p className="font-onest text-xs text-center text-primary" style={{ opacity: 0.85 }}>
           No BNB needed — BigTR covers the network fees. You only need USDT.
         </p>
-        <button
-          type="button"
-          onClick={signInWithEmail}
-          disabled={emailBusy}
-          className="font-onest text-sm text-secondary underline underline-offset-4 hover:opacity-100 transition disabled:opacity-40"
-          style={{ opacity: 0.6 }}
-        >
-          No crypto wallet? Sign in with email
-        </button>
+        {!mobileFirst && (
+          <button
+            type="button"
+            onClick={signInWithEmail}
+            disabled={emailBusy}
+            className="font-onest text-sm text-secondary underline underline-offset-4 hover:opacity-100 transition disabled:opacity-40"
+            style={{ opacity: 0.6 }}
+          >
+            No crypto wallet? Sign in with email
+          </button>
+        )}
         <p className="font-onest text-xs text-secondary" style={{ opacity: 0.4 }}>
           Secure connection · BNB Smart Chain
         </p>
