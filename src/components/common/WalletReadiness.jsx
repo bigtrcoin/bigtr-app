@@ -91,11 +91,23 @@ const DepositAddress = ({ address }) => {
 // USDT there, while purchases run from the smart account. This moves that
 // USDT across in one transfer (signed by, and paid for from, the connected
 // wallet) so they do not have to do it by hand on an explorer.
-const MoveUsdtPanel = ({ wallet, signerUsdt, signerBnb, target, onDone }) => {
+const MoveUsdtPanel = ({ wallet, signerUsdt, signerBnb, target, want, onDone }) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
 
+  // Default to what this purchase needs, never the whole balance: the rest of
+  // the buyer's USDT stays in their own wallet unless they choose otherwise.
+  const suggested = want > 0 ? Math.min(want, signerUsdt) : signerUsdt;
+  const [value, setValue] = useState(String(suggested));
+  useEffect(() => {
+    if (!busy && !done) setValue(String(suggested));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggested]);
+
+  const amount = Number(value);
   const lowGas = signerBnb < MIN_GAS_BNB;
+  const invalid = !(amount > 0) || amount > signerUsdt;
 
   const move = async () => {
     setError("");
@@ -107,9 +119,10 @@ const MoveUsdtPanel = ({ wallet, signerUsdt, signerBnb, target, onDone }) => {
       const tx = prepareContractCall({
         contract: token,
         method: "function transfer(address,uint256) returns (bool)",
-        params: [target, toUnits(String(signerUsdt), STABLE_DECIMALS)],
+        params: [target, toUnits(String(amount), STABLE_DECIMALS)],
       });
       await sendTransaction({ account: admin, transaction: tx });
+      setDone(true);
       if (onDone) onDone();
     } catch (e) {
       setError(friendlyTxError(e?.message || e));
@@ -119,24 +132,65 @@ const MoveUsdtPanel = ({ wallet, signerUsdt, signerBnb, target, onDone }) => {
   };
 
   return (
-    <div className="mt-3 rounded-[14px] border px-3.5 py-3" style={{ borderColor: "color-mix(in srgb, var(--color-primary) 45%, transparent)", background: "color-mix(in srgb, var(--color-primary) 6%, transparent)" }}>
+    <div
+      className="mt-3 rounded-[14px] border px-3.5 py-3"
+      style={{
+        borderColor: "color-mix(in srgb, var(--color-primary) 45%, transparent)",
+        background: "color-mix(in srgb, var(--color-primary) 6%, transparent)",
+      }}
+    >
       <p className="font-chakrapetch text-[13px] text-secondary-80">
-        <span className="text-secondary font-bold">{fmt(signerUsdt, 2)} USDT</span> is sitting in the wallet you
-        signed in with. Move it to your BigTR address above and you can buy right away.
+        The wallet you signed in with holds <span className="text-secondary font-bold">{fmt(signerUsdt, 2)} USDT</span>.
+        Move as much as you want to spend to your BigTR address above — the rest stays in your own wallet.
       </p>
-      <button
-        type="button"
-        onClick={move}
-        disabled={busy || lowGas}
-        className="mt-2.5 rounded-[10px] px-3.5 py-2 bg-primary font-chakrapetch uppercase text-[12px] font-bold text-btn-text hover:opacity-90 transition disabled:opacity-40"
-      >
-        {busy ? "Confirm in your wallet..." : `Move ${fmt(signerUsdt, 2)} USDT`}
-      </button>
+
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+        <div className="flex items-center rounded-[10px] bg-secondary-8 px-3 py-2">
+          <input
+            id="bigtr-move-usdt"
+            type="number"
+            min="0"
+            step="0.01"
+            value={value}
+            disabled={busy}
+            onChange={(e) => setValue(e.target.value)}
+            className="w-28 bg-transparent font-chakrapetch text-[14px] font-bold text-secondary outline-none"
+          />
+          <span className="font-chakrapetch text-[12px] text-secondary-70">USDT</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setValue(String(signerUsdt))}
+          disabled={busy}
+          className="rounded-[10px] px-3 py-2 bg-secondary-8 font-chakrapetch uppercase text-[12px] font-bold text-secondary hover:opacity-80 transition disabled:opacity-40"
+        >
+          Max
+        </button>
+        <button
+          type="button"
+          onClick={move}
+          disabled={busy || lowGas || invalid}
+          className="rounded-[10px] px-3.5 py-2 bg-primary font-chakrapetch uppercase text-[12px] font-bold text-btn-text hover:opacity-90 transition disabled:opacity-40"
+        >
+          {busy ? "Confirm in your wallet..." : `Move ${fmt(amount > 0 ? amount : 0, 2)} USDT`}
+        </button>
+      </div>
+
       <p className="mt-2 font-chakrapetch text-[12px] text-secondary-70">
         {lowGas
-          ? `This one transfer is sent by your own wallet, so it needs a little BNB for the fee. Your wallet has ${fmt(signerBnb, 5)} BNB; send at least ${RECOMMENDED_GAS_BNB} BNB to it, or withdraw USDT from an exchange straight to the address above instead - that way no BNB is needed at all.`
+          ? `This one transfer is sent by your own wallet, so it needs a little BNB for the fee. Your wallet has ${fmt(signerBnb, 5)} BNB; send at least ${RECOMMENDED_GAS_BNB} BNB to it, or withdraw USDT from an exchange straight to the address above instead — that way no BNB is needed at all.`
           : "This single transfer is signed by your own wallet and costs a few cents of BNB. Every purchase after it is free of network fees."}
       </p>
+      {invalid && !busy && (
+        <p className="mt-1 font-chakrapetch text-[12px] text-[#F2B43C]">
+          Enter an amount between 0 and {fmt(signerUsdt, 2)} USDT.
+        </p>
+      )}
+      {done && !busy && !error && (
+        <p className="mt-1 font-chakrapetch text-[12px] text-secondary-80">
+          Transfer sent. This box updates by itself once it is confirmed.
+        </p>
+      )}
       {error && <p className="mt-2 font-chakrapetch text-[12px] text-[#F2B43C]">{error}</p>}
     </div>
   );
@@ -281,6 +335,7 @@ const WalletReadiness = ({ account, amount, onChange }) => {
               signerUsdt={signerUsdt}
               signerBnb={signerBnb}
               target={address}
+              want={want}
               onDone={() => {
                 usdtQ.refetch?.();
                 signerUsdtQ.refetch?.();
