@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useActiveWallet, useWalletBalance } from "thirdweb/react";
 import { QRCodeSVG } from "qrcode.react";
-import { PAY_TOKEN, client, presaleChain } from "../../web3/presale";
+import { getContract, prepareContractCall, sendTransaction, toUnits } from "thirdweb";
+import { PAY_TOKEN, STABLE_DECIMALS, client, presaleChain } from "../../web3/presale";
 import { SMART_ACCOUNT_FOR_ALL, isSponsoredWallet } from "../../web3/wallets";
 
 // Minimum native balance we require from self-custody wallets before letting
@@ -86,6 +87,61 @@ const DepositAddress = ({ address }) => {
   );
 };
 
+// Buyers who signed in with an existing wallet usually already hold their
+// USDT there, while purchases run from the smart account. This moves that
+// USDT across in one transfer (signed by, and paid for from, the connected
+// wallet) so they do not have to do it by hand on an explorer.
+const MoveUsdtPanel = ({ wallet, signerUsdt, signerBnb, target, onDone }) => {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const lowGas = signerBnb < MIN_GAS_BNB;
+
+  const move = async () => {
+    setError("");
+    setBusy(true);
+    try {
+      const admin = wallet?.getAdminAccount?.();
+      if (!admin) throw new Error("Connected wallet is unavailable");
+      const token = getContract({ client, chain: presaleChain, address: PAY_TOKEN.address });
+      const tx = prepareContractCall({
+        contract: token,
+        method: "function transfer(address,uint256) returns (bool)",
+        params: [target, toUnits(String(signerUsdt), STABLE_DECIMALS)],
+      });
+      await sendTransaction({ account: admin, transaction: tx });
+      if (onDone) onDone();
+    } catch (e) {
+      setError(friendlyTxError(e?.message || e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 rounded-[14px] border px-3.5 py-3" style={{ borderColor: "color-mix(in srgb, var(--color-primary) 45%, transparent)", background: "color-mix(in srgb, var(--color-primary) 6%, transparent)" }}>
+      <p className="font-chakrapetch text-[13px] text-secondary-80">
+        <span className="text-secondary font-bold">{fmt(signerUsdt, 2)} USDT</span> is sitting in the wallet you
+        signed in with. Move it to your BigTR address above and you can buy right away.
+      </p>
+      <button
+        type="button"
+        onClick={move}
+        disabled={busy || lowGas}
+        className="mt-2.5 rounded-[10px] px-3.5 py-2 bg-primary font-chakrapetch uppercase text-[12px] font-bold text-btn-text hover:opacity-90 transition disabled:opacity-40"
+      >
+        {busy ? "Confirm in your wallet..." : `Move ${fmt(signerUsdt, 2)} USDT`}
+      </button>
+      <p className="mt-2 font-chakrapetch text-[12px] text-secondary-70">
+        {lowGas
+          ? `This one transfer is sent by your own wallet, so it needs a little BNB for the fee. Your wallet has ${fmt(signerBnb, 5)} BNB; send at least ${RECOMMENDED_GAS_BNB} BNB to it, or withdraw USDT from an exchange straight to the address above instead - that way no BNB is needed at all.`
+          : "This single transfer is signed by your own wallet and costs a few cents of BNB. Every purchase after it is free of network fees."}
+      </p>
+      {error && <p className="mt-2 font-chakrapetch text-[12px] text-[#F2B43C]">{error}</p>}
+    </div>
+  );
+};
+
 /**
  * Reads the connected wallet's USDT (and, for self-custody wallets, BNB)
  * balance and tells the user, before they press Buy, whether the purchase can
@@ -104,6 +160,29 @@ const WalletReadiness = ({ account, amount, onChange }) => {
     { client, chain: presaleChain, address, tokenAddress: PAY_TOKEN.address },
     refetch
   );
+
+  // The wallet that signs for the smart account (MetaMask & co). Buyers often
+  // already hold their USDT there, so it is read as well.
+  let signerAddress = null;
+  try {
+    const admin = wallet?.getAdminAccount?.();
+    if (admin?.address && admin.address.toLowerCase() !== (address || "").toLowerCase()) {
+      signerAddress = admin.address;
+    }
+  } catch {
+    signerAddress = null;
+  }
+  const signerEnabled = Boolean(signerAddress);
+  const signerUsdtQ = useWalletBalance(
+    { client, chain: presaleChain, address: signerAddress || undefined, tokenAddress: PAY_TOKEN.address },
+    { refetchInterval: 15000, enabled: signerEnabled }
+  );
+  const signerBnbQ = useWalletBalance(
+    { client, chain: presaleChain, address: signerAddress || undefined },
+    { refetchInterval: 15000, enabled: signerEnabled }
+  );
+  const signerUsdt = Number(signerUsdtQ.data?.displayValue || 0);
+  const signerBnb = Number(signerBnbQ.data?.displayValue || 0);
 
   const bnb = Number(bnbQ.data?.displayValue || 0);
   const usdt = Number(usdtQ.data?.displayValue || 0);
@@ -196,6 +275,18 @@ const WalletReadiness = ({ account, amount, onChange }) => {
             <li>Come back here; this box updates by itself once the funds arrive, then press Buy Now.</li>
           </ol>
           <DepositAddress address={address} />
+          {needUsdt && signerUsdt > 0 && (
+            <MoveUsdtPanel
+              wallet={wallet}
+              signerUsdt={signerUsdt}
+              signerBnb={signerBnb}
+              target={address}
+              onDone={() => {
+                usdtQ.refetch?.();
+                signerUsdtQ.refetch?.();
+              }}
+            />
+          )}
           <p className="mt-3 text-[12px] text-secondary-70">
             {SMART_ACCOUNT_FOR_ALL
               ? "This is your BigTR pre-sale address. USDT held anywhere else - including in the wallet you signed in with - has to be sent here first."
