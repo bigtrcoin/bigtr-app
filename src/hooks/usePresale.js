@@ -18,7 +18,14 @@ import {
     useSendBatchTransaction,
     useSendTransaction,
 } from "thirdweb/react";
-import { getContract, prepareContractCall, readContract, toUnits } from "thirdweb";
+import {
+    getContract,
+    prepareContractCall,
+    readContract,
+    sendTransaction,
+    toUnits,
+    waitForReceipt,
+} from "thirdweb";
 import {
     client,
     presaleChain,
@@ -103,7 +110,7 @@ export function usePresale() {
   }, []);
 
   const buy = useCallback(
-        async (payTokenAddress, humanAmount) => {
+        async (payTokenAddress, humanAmount, onStep) => {
                 if (!presaleConfigured) throw new Error("Contract is not connected yet");
                 if (!account) throw new Error("Wallet not connected");
                 if (!payTokenAddress) throw new Error("Payment token is not configured");
@@ -119,6 +126,40 @@ export function usePresale() {
                 const minTokensOut = (freshTokens * (10_000n - SLIPPAGE_BPS)) / 10_000n;
 
           const payToken = getContract({ client, chain: presaleChain, address: payTokenAddress });
+
+          // Buying runs from the smart account, but a buyer who signed in with
+          // an existing wallet usually still holds their USDT there. Whatever
+          // is missing is moved across first, in one transfer they confirm in
+          // that wallet — no separate step in the UI.
+          const balance = await readContract({
+                    contract: payToken,
+                    method: "function balanceOf(address) view returns (uint256)",
+                    params: [account.address],
+          });
+          if (balance < payAmount) {
+                    const missing = payAmount - balance;
+                    const admin = wallet?.getAdminAccount?.();
+                    if (!admin || admin.address.toLowerCase() === account.address.toLowerCase()) {
+                                throw new Error("transfer amount exceeds balance");
+                    }
+                    const signerBalance = await readContract({
+                                contract: payToken,
+                                method: "function balanceOf(address) view returns (uint256)",
+                                params: [admin.address],
+                    });
+                    if (signerBalance < missing) throw new Error("transfer amount exceeds balance");
+                    if (onStep) onStep("Confirm in your wallet: moving the USDT for this purchase...");
+                    const moveTx = prepareContractCall({
+                                contract: payToken,
+                                method: "function transfer(address,uint256) returns (bool)",
+                                params: [account.address, missing],
+                    });
+                    const sent = await sendTransaction({ account: admin, transaction: moveTx });
+                    if (onStep) onStep("Waiting for the transfer to confirm on BNB Chain...");
+                    await waitForReceipt(sent);
+          }
+
+          if (onStep) onStep("Confirm the purchase...");
 
           const current = await readContract({
                     contract: payToken,
@@ -147,7 +188,7 @@ export function usePresale() {
           for (const tx of txs) receipt = await sendTx(tx);
           return receipt;
         },
-        [account, sendTx, sendBatch]
+        [account, wallet, sendTx, sendBatch]
       );
 
   return {

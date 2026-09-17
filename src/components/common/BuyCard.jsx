@@ -104,8 +104,8 @@ const BuyCard = () => {
       return;
     }
     try {
-      setStatus("Confirm the approval and purchase in your wallet...");
-      await buy(PAY_TOKEN.address, amount);
+      setStatus("Confirm the purchase in your wallet...");
+      await buy(PAY_TOKEN.address, amount, (step) => setStatus(step));
       setStatus("Purchase successful. Your BIGTR allocation has been recorded.");
       setAmount("");
       setTokensOut(0n);
